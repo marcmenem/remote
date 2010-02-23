@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone='no'?>
+<!--*-nxml-*--> 
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd"> 
+<service-group>  
+	<name>0000000000000000000000000000000000000001</name>  
+	<service>  
+		<type>_touch-remote._tcp</type>  
+		<port>1024</port>  
+		<txt-record>DvNm=Android remote</txt-record>  
+		<txt-record>RemV=10000</txt-record>  
+		<txt-record>DvTy=iPod</txt-record>  
+		<txt-record>RemN=Remote</txt-record>  
+		<txt-record>txtvers=1</txt-record>  
+		<txt-record>Pair=0000000000000001</txt-record>  
+	</service> 
+</service-group> 
