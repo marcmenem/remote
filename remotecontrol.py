@@ -8,7 +8,8 @@ import sys, re
 import decode
 import response
 
-
+def _encode( values ):
+	return '&'.join([ str(k) + '=' + str(values[k]) for k in values ])
 
 class remote:
 	def __init__(self):
@@ -30,7 +31,7 @@ class remote:
 		values['session-id'] = self.sessionid
 		
 		url = command
-		url += "?" + urllib.urlencode(values)
+		url += "?" + _encode(values)
 		print url
 		
 		headers = { 'Viewer-Only-Client': '1'  }
@@ -44,7 +45,7 @@ class remote:
 		return resp.resp
 	
 	
-	def _databaseid(self):
+	def databases(self):
 		command = '%s/databases' % (self.service)
 		resp = self._operation( command, {} )
 		self.databaseid = resp["avdb"]["mlcl"]["mlit"]["miid"]
@@ -52,7 +53,22 @@ class remote:
 			
 	def playlists(self):
 		command = '%s/databases/%d/containers' % (self.service, self.databaseid)
-		values = { 'meta': "dmap.itemname,dmap.itemcount,dmap.itemid,dmap.persistentid,daap.baseplaylist,com.apple.itunes.special-playlist,com.apple.itunes.smart-playlist,com.apple.itunes.saved-genius,dmap.parentcontainerid,dmap.editcommandssupported" }
+		meta = [
+			'dmap.itemname', 
+			'dmap.itemcount', 
+			'dmap.itemid', 
+			'dmap.persistentid', 
+			'daap.baseplaylist', 
+			'com.apple.itunes.special-playlist', 
+			'com.apple.itunes.smart-playlist', 
+			'com.apple.itunes.saved-genius', 
+			'dmap.parentcontainerid', 
+			'dmap.editcommandssupported', 
+			'com.apple.itunes.jukebox-current', 
+			'daap.songcontentdescription'
+			]		
+		values = { 'meta': ','.join(meta) }
+
 		resp = self._operation( command, values )
 		return resp
 
@@ -66,7 +82,7 @@ class remote:
 		self.sessionid = resp.resp['mlog']['mlid']
 	
 		print "Got session id", self.sessionid
-		self._databaseid()
+		self.databases()
 		self.playlists()
 		
 		return resp
@@ -126,7 +142,7 @@ class remote:
 	def setspeakers(self, spkid):
 		print "setspeakers >>> "
 		values = {'speaker-id': spkid }
-		return self._ctloperation('playstatusupdate', values)	
+		return self._ctloperation('setspeakers', values)	
 		
 		
 		

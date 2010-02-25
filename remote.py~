@@ -72,6 +72,11 @@ class HelloWorld:
         self.window.show()
 
     def main(self):
+	
+	data = urllib.urlopen( 
+		'http://192.168.1.8:3689/login?pairing-guid=0x0000000000000001' )
+	decode.decode(data, len(data), 0)
+
         # All PyGTK applications must have a gtk.main(). Control ends here
         # and waits for an event to occur (like a key press or mouse event).
         gtk.main()

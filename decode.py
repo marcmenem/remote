@@ -14,11 +14,13 @@ def read(queue, size):
 	del queue[0:size]
 	return pull
 
-group = ['cmst','mlog','agal','mlcl','mshl','mlit','abro','abar','apso','caci','avdb','cmgt','aply','adbs','cmpa']
+group = ['casp', 'cmst','mlog','agal','mlcl','mshl','mlit','abro',
+	'abar','apso','caci','avdb','cmgt','aply','adbs','cmpa', 'mdcl']
 
 rebinary = re.compile('[^\x20-\x7e]')
 
-def ashex(s): return ''.join([ "%02x" % ord(c) for c in s ])
+#def ashex(s): return ''.join([ "%02x" % ord(c) for c in s ])
+def ashex(s): return ''.join(s)
 
 def asbyte(s): return struct.unpack('>B', s)[0]
 def asint(s): return struct.unpack('>I', s)[0]
@@ -43,20 +45,19 @@ def decode(raw, handle, indent):
 		pdata = read(raw, plen)
 		
 		nice = '%s' % ashex(pdata)
-		if plen == 1: nice = '%s == %s' % (ashex(pdata), asbyte(pdata))
-		if plen == 4: nice = '%s == %s' % (ashex(pdata), asint(pdata))
-		if plen == 8: nice = '%s == %s' % (ashex(pdata), aslong(pdata))
+		#if plen == 1: nice = '%s == %s' % (ashex(pdata), asbyte(pdata))
+		#if plen == 4: nice = '%s == %s' % (ashex(pdata), asint(pdata))
+		#if plen == 8: nice = '%s == %s' % (ashex(pdata), aslong(pdata))
+		
+		if plen == 1: nice = '%s' % (asbyte(pdata))
+		if plen == 4: nice = '%s' % (asint(pdata))
+		if plen == 8: nice = '%s' % (aslong(pdata))
 		
 		if rebinary.search(pdata) is None:
-			nice = pdata
+			nice += ' #(%s)' % (pdata)
 		
 		print '\t' * indent, ptype.ljust(6), str(plen).ljust(6), nice
 
-
-#def build(data):
-#	raw = []
-#	while c = data.read(1): raw.append(c)
-#	return raw
 
 if __name__ == "__main__":
 

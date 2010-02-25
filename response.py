@@ -10,7 +10,7 @@ import remotecontrol
 
 
 BRANCHES = ["cmst", "mlog", "agal", "mlcl", "mshl", "mlit", "abro", "abar", 
-				"apso", "caci", "avdb", "cmgt", "aply", "adbs"]
+				"apso", "caci", "avdb", "cmgt", "aply", "adbs", "casp", "mdcl"]
 STRINGS = ["minm", "cann", "cana", "cang", "canl", "asaa", "asal", "asar"]
 
 
@@ -63,11 +63,9 @@ class response:
 				
 			if key in BRANCHES:
 				branch = self.parse( data, length ) #listener, listenFor, length )
+				data = data[length:]
 				resp[nicekey] = branch
 	
-			#				if listener:
-			#		if listenFor(key):
-			#			listener.found( key, branch )
 			elif key in STRINGS:
 				resp[nicekey], data = self._readString( data, length )
 			elif (length == 1 or length == 2 or length == 4 or length == 0):
