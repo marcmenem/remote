@@ -7,6 +7,12 @@ import gtk
 
 import remotecontrol
 
+
+def timerepr(t1):
+	min = t1 / ( 60000 )
+	sec = (t1 - 60000*min)/1000
+	return "%0d:%0d" % (min, sec)
+
 class Remote:
     def gtk_main_quit( self, window ):
         gtk.main_quit()
@@ -34,7 +40,7 @@ class Remote:
         self.remote.volume(volume)
         self.update_volume()
     
-    def update_volume()
+    def update_volume(self):
         volume = self.remote.getvolume()
         #FIXME
         
@@ -68,6 +74,15 @@ class Remote:
 
     def update_status(self):
         status = self.remote.showStatus()
+        if status.ok():
+            self.track.set_label(status.track)
+            self.artist.set_label(status.artist)
+            #self.album.set_label(status.album)
+            #self.genre.set_label(status.genre)
+            self.time.set_label(timerepr( status.totaltime - status.time ))
+            self.timeremain.set_label(timerepr( status.totaltime ))
+
+        
 
     def init_speakers(self):
         #FIXME

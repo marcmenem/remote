@@ -181,7 +181,6 @@
 audio-volume-high
 audio-volume-low
 audio-volume-medium</property>
-                    <signal name="value_changed" handler="setvolume"/>
                     <signal name="released" handler="volumerelease"/>
                   </object>
                   <packing>
@@ -262,6 +261,8 @@ audio-volume-medium</property>
             <child>
               <object class="GtkComboBox" id="combobox1">
                 <property name="visible">True</property>
+                <property name="resize_mode">immediate</property>
+                <property name="model">liststore2</property>
               </object>
               <packing>
                 <property name="position">4</property>
@@ -361,5 +362,29 @@ audio-volume-medium</property>
     </child>
   </object>
   <object class="GtkTreeStore" id="treestore1"/>
-  <object class="GtkListStore" id="liststore1"/>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name Track -->
+      <column type="gchararray"/>
+      <!-- column-name Artist -->
+      <column type="gchararray"/>
+      <!-- column-name Album -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">testtrack</col>
+        <col id="1" translatable="yes">testartist</col>
+        <col id="2" translatable="yes">testalbum</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="liststore2">
+    <columns>
+      <!-- column-name active -->
+      <column type="GtkButtonBoxStyle"/>
+      <!-- column-name speakername -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
 </interface>

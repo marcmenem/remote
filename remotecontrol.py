@@ -19,12 +19,12 @@ class remote:
 		
 		self.musicid = 44197  # FIXME magic "music" playlist
 
-	def _ctloperation( self, command, values):
+	def _ctloperation( self, command, values, verbose = True):
 		command = '%s/ctrl-int/1/%s' % (self.service, command)
-		return self._operation( command, values)
+		return self._operation( command, values, verbose)
 		
 		
-	def _operation( self, command, values):
+	def _operation( self, command, values, verbose=True):
 		if self.sessionid is None:
 			self.pairing()
 	
@@ -32,14 +32,14 @@ class remote:
 		
 		url = command
 		url += "?" + _encode(values)
-		print url
+		if verbose: print url
 		
 		headers = { 'Viewer-Only-Client': '1'  }
 		request = urllib2.Request( url, None, headers )
 		resp = urllib2.urlopen(request)
 		out = resp.read()
 		
-		self._decode2( out )
+		if verbose: self._decode2( out )
 		resp = response.response( out )
 		
 		return resp.resp
@@ -146,10 +146,13 @@ class remote:
 		
 		
 		
-	def status(self):
-		print "status >>> "
+	def showStatus(self, verbose=False):
+		#print "status >>> "
 		values = {'revision-number': '1' }
-		return self._ctloperation('playstatusupdate', values)	
+		status = self._ctloperation('playstatusupdate', values, verbose)	
+		status = status['cmst']
+		status.show()
+		return status
 		
 	def setproperty(self, prop, val):
 		print "setproperty >>> "
@@ -184,14 +187,7 @@ class remote:
 	def volume(self, value):
 		return self.setproperty( 'dmcp.volume', value)
 		
-	def showStatus( self ):
-		status = self.status()
-		print "Album:\t", status['cmst']['canl']
-		print "Artist:\t", status['cmst']['cana']
-		print "Track:\t", status['cmst']['cann']
-		print "Genre:\t:", status['cmst']['cang']
-		return status
-		
+
 
 	def search( self, search, start, end):
 		
