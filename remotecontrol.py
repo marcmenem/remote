@@ -71,6 +71,8 @@ class remote:
 
 		resp = self._operation( command, values, False )
 		resp = resp['aply']
+		
+		self.playlists_cache = resp
 		return resp
 
 	def pairing(self):
@@ -138,7 +140,8 @@ class remote:
 		
 	def getspeakers(self):
 		print "speakers >>> "
-		return self._ctloperation('getspeakers', {})	
+		spk = self._ctloperation('getspeakers', {}, False)	
+		return spk['casp']
 		
 	def setspeakers(self, spkid):
 		print "setspeakers >>> "

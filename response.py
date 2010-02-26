@@ -14,6 +14,10 @@ BRANCHES = ["cmst", "mlog", "agal", "mlcl", "mshl", "mlit", "abro", "abar",
 STRINGS = ["minm", "cann", "cana", "cang", "canl", "asaa", "asal", "asar"]
 
 
+class speakerset:
+    def __init__(self):
+        pass
+
 class status:
 	def __init__(self):
 		self.unknown = []
@@ -44,7 +48,7 @@ class playlist:
 
 	def show(self):
 		for l in self.lists:
-			print l.name
+			print l.name, l.nbtracks
 
 class playlistelem:
 	def __init__(self):
@@ -98,7 +102,7 @@ class parser:
 			tmp, data = self._readString( data, length )
 
 		if (verbose): print "Unknown key", key, tmp
-		obj.unknown.append(tmp)
+		if obj: obj.unknown.append(tmp)
 		
 		return data
 	
@@ -155,7 +159,7 @@ class playlistlistener(parser):
 					else:
 						print 'ERROR parsing playlists'
 			else:
-				data = self._processunk( key, length, data, st )
+				data = self._processunk( key, length, data, st, False )
 				
 		return st		
 
@@ -178,7 +182,7 @@ class playlistparser(parser):
 				st.permanentid, data = self._readInteger( data, length )  
 			elif key == 'minm':
 				st.name, data = self._readString( data, length )  
-				print ">>>", st.name
+				#print ">>>", st.name
 			elif key == 'mimc':
 				st.nbtracks, data = self._readInteger( data, length )  
 			elif key == 'ascn':
@@ -191,7 +195,7 @@ class playlistparser(parser):
 				st.auto = True
 
 			else:
-				data = self._processunk( key, length, data, st )
+				data = self._processunk( key, length, data, st, False )
 			
 		return st, data
 
@@ -211,8 +215,37 @@ class speakerslistener(parser):
 	def __init__(self):
 		pass
 		
-	def parse(self, data, length):
-		pass
+	def parse(self, data, handle):
+		st = []
+		
+		while handle > 8:
+			key, length, data = self._getkey( data )
+			handle -= 8 + length
+			
+			if key == 'mdcl':
+				spk = speakerset()
+				st.append(spk)
+				spk.playing = False
+				while length > 8:
+					key, l2, data = self._getkey( data )
+					length -= 8 + l2
+					if key == 'minm':
+						spk.name, data = self._readString( data, l2 )  
+					elif key == 'msma':
+						spk.id, data = self._readInteger( data, l2 )  
+					elif key == 'caia':
+						on, data = self._readInteger( data, l2 )  
+						spk.playing = True
+					else:
+						print 'ERROR parsing speakers'
+			elif key == 'mstt':
+				tmp, data = self._readInteger( data, length )  
+			
+			else:
+				data = self._processunk( key, length, data, None, False )
+			
+		return st				
+
 		
 		
 """
@@ -269,12 +302,12 @@ class playstatuslistener(parser):
 				tmp, data = self._readInteger( data, length )  
 			
 			else:
-				data = self._processunk( key, length, data, st )
+				data = self._processunk( key, length, data, st, False )
 			
 		return st				
 
 
-#LISTENERS['casp'] = speakerslistener()
+LISTENERS['casp'] = speakerslistener()
 LISTENERS['cmst'] = playstatuslistener()
 LISTENERS['aply'] = playlistlistener()
 
