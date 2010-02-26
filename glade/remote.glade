@@ -198,7 +198,7 @@ audio-volume-medium</property>
                 <child>
                   <object class="GtkLabel" id="Artist">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">label</property>
+                    <property name="label" translatable="yes">&lt;b&gt;label&lt;/b&gt;</property>
                   </object>
                   <packing>
                     <property name="position">0</property>
@@ -317,6 +317,23 @@ audio-volume-medium</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="model">treestore1</property>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                        <property name="title">Track</property>
+                        <property name="reorderable">True</property>
+                        <property name="sort_indicator">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                        <property name="title">Artist</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                        <property name="title">Album</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -362,7 +379,6 @@ audio-volume-medium</property>
       </object>
     </child>
   </object>
-  <object class="GtkTreeStore" id="treestore1"/>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name Track -->
@@ -385,6 +401,16 @@ audio-volume-medium</property>
       <!-- column-name active -->
       <column type="GtkButtonBoxStyle"/>
       <!-- column-name speakername -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkTreeStore" id="treestore1">
+    <columns>
+      <!-- column-name Track -->
+      <column type="gchararray"/>
+      <!-- column-name Artist -->
+      <column type="gchararray"/>
+      <!-- column-name Album -->
       <column type="gchararray"/>
     </columns>
   </object>
