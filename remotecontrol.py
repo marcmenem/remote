@@ -69,7 +69,8 @@ class remote:
 			]		
 		values = { 'meta': ','.join(meta) }
 
-		resp = self._operation( command, values )
+		resp = self._operation( command, values, False )
+		resp = resp['aply']
 		return resp
 
 	def pairing(self):

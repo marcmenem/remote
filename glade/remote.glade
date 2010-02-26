@@ -235,6 +235,7 @@ audio-volume-medium</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="adjustment">adjustment1</property>
                     <property name="digits">0</property>
                     <property name="draw_value">False</property>
                     <property name="value_pos">left</property>
@@ -386,5 +387,12 @@ audio-volume-medium</property>
       <!-- column-name speakername -->
       <column type="gchararray"/>
     </columns>
+  </object>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+    <signal name="value_changed" handler="trackseek"/>
   </object>
 </interface>

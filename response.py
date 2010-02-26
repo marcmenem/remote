@@ -15,6 +15,9 @@ STRINGS = ["minm", "cann", "cana", "cang", "canl", "asaa", "asal", "asar"]
 
 
 class status:
+	def __init__(self):
+		self.unknown = []
+
 	def ok(self):
 		return 'artist' in dir(self) and 'album' in dir(self) and 'track' in dir(self)  and 'genre' in dir(self)
 	
@@ -25,10 +28,28 @@ class status:
 			print "Track:\t", self.track
 			print "Genre:\t:", self.genre
 			print "Playing:\t", self.playstatus
-			print "Time:\t", self.time
-			print "Total:\t", self.totaltime
+			if self.playstatus >2:
+				print "Time:\t", self.time
+				print "Total:\t", self.totaltime
 			
+class playlist:
+	def __init__(self):
+		self.lists = []
+		self.unknown = []
+	
+	def addplaylist(self, pl):
+		if pl.library:
+			self.library = pl
+		self.lists.append( pl )
 
+	def show(self):
+		for l in self.lists:
+			print l.name
+
+class playlistelem:
+	def __init__(self):
+		self.library = False
+		self.unknown = []
 
 
 class parser:
@@ -67,6 +88,131 @@ class parser:
 		for i in range(len(d)):
 			a.append(d[i])
 		return decode.decode( a, len(d), 0)
+		
+	def _processunk( self, key, length, data, obj, verbose=True ):
+		if key in STRINGS:
+			tmp, data = self._readString( data, length )
+		elif (length == 1 or length == 2 or length == 4 or length == 0):
+			tmp, data = self._readInteger( data, length )
+		else:
+			tmp, data = self._readString( data, length )
+
+		if (verbose): print "Unknown key", key, tmp
+		obj.unknown.append(tmp)
+		
+		return data
+	
+
+"""
+ aply  --+
+        mstt   4      200
+        muty   1      0
+        mtco   4      35
+        mrco   4      35
+        mlcl  --+
+                mlit  --+
+                        miid   4      28402
+                        mper   8      10976505473824925494
+                        minm   35     Bibli
+                        abpl   1      1
+                        mpco   4      0
+                        meds   4      0
+                        mimc   4      12843
+                mlit  --+
+                        miid   4      44156
+                        mper   8      10976505473824925504
+                        minm   7      Musique #(Musique)
+                        aeSP   1      1
+                        mpco   4      0
+                        aePS   1      6
+                        meds   4      0
+                        mimc   4      12682
+"""
+class playlistlistener(parser):
+	def __init__(self):
+		self._playlistparser = playlistparser()
+		
+	def parse(self, data, handle):
+		st = playlist()
+				
+		while handle > 8:
+			key, length, data = self._getkey( data )
+			handle -= 8 + length
+			
+			if key == 'mstt':
+				tmp, data = self._readInteger( data, length ) # ok status ?
+			elif key == 'mtco':
+				st.nbplaylists1, data = self._readInteger( data, length )  
+			elif key == 'mrco':
+				st.nbplaylists1, data = self._readInteger( data, length )  
+			elif key == 'mlcl':
+				while length > 8:
+					key, l2, data = self._getkey( data )
+					length -= 8 + l2
+					if (key == 'mlit'):
+						elem, data = self._playlistparser.parse( data, l2 )  
+						st.addplaylist(elem)
+					else:
+						print 'ERROR parsing playlists'
+			else:
+				data = self._processunk( key, length, data, st )
+				
+		return st		
+
+
+
+class playlistparser(parser):
+	def __init__(self):
+		pass
+		
+	def parse(self, data, handle):
+		st = playlistelem()
+		
+		while handle > 8:
+			key, length, data = self._getkey( data )
+			handle -= 8 + length
+			
+			if key == 'miid':
+				st.id, data = self._readInteger( data, length ) 
+			elif key == 'mper':
+				st.permanentid, data = self._readInteger( data, length )  
+			elif key == 'minm':
+				st.name, data = self._readString( data, length )  
+				print ">>>", st.name
+			elif key == 'mimc':
+				st.nbtracks, data = self._readInteger( data, length )  
+			elif key == 'ascn':
+				st.geniusartiststyle, data = self._readString( data, length )  
+			elif key == 'abpl':
+				tmp, data = self._readInteger( data, length )  
+				st.library = True
+			elif key == 'aeSP':
+				tmp, data = self._readInteger( data, length )  
+				st.auto = True
+
+			else:
+				data = self._processunk( key, length, data, st )
+			
+		return st, data
+
+
+"""
+casp  --+
+	mstt   4      200
+	mdcl  --+
+		minm   10     Ordinateur #(Ordinateur)
+		msma   8      0
+	mdcl  --+
+		caia   1      1
+		minm   8      4713424192092923251 #(AirTunes)
+		msma   8      154081533644
+"""
+class speakerslistener(parser):
+	def __init__(self):
+		pass
+		
+	def parse(self, data, length):
+		pass
 		
 		
 """
@@ -121,41 +267,16 @@ class playstatuslistener(parser):
 				st.albumid, data = self._readInteger( data, length )  
 			elif key == 'mstt':
 				tmp, data = self._readInteger( data, length )  
+			
 			else:
-				if key in STRINGS:
-					tmp, data = self._readString( data, length )
-				elif (length == 1 or length == 2 or length == 4 or length == 0):
-					tmp, data = self._readInteger( data, length )
-				else:
-					tmp, data = self._readString( data, length )
-
-				print "Unknown key", key, tmp
+				data = self._processunk( key, length, data, st )
 			
 		return st				
 
-"""
-casp  --+
-	mstt   4      200
-	mdcl  --+
-		minm   10     Ordinateur #(Ordinateur)
-		msma   8      0
-	mdcl  --+
-		caia   1      1
-		minm   8      4713424192092923251 #(AirTunes)
-		msma   8      154081533644
-"""
-class speakerslistener(parser):
-	def __init__(self):
-		pass
-		
-	def parse(self, data, length):
-		pass
-		
-		
 
 #LISTENERS['casp'] = speakerslistener()
 LISTENERS['cmst'] = playstatuslistener()
-
+LISTENERS['aply'] = playlistlistener()
 
 class response(parser):
 	def __init__(self, data):

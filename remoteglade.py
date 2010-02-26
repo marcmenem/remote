@@ -11,7 +11,7 @@ import remotecontrol
 def timerepr(t1):
 	min = t1 / ( 60000 )
 	sec = (t1 - 60000*min)/1000
-	return "%0d:%0d" % (min, sec)
+	return "%0d:%02d" % (min, sec)
 
 class Remote:
     def gtk_main_quit( self, window ):
@@ -44,8 +44,8 @@ class Remote:
         volume = self.remote.getvolume()
         #FIXME
         
-    def trackseek(self, window, value):
-        print "trackseek", window, value
+    def trackseek(self, window):
+        print "trackseek", window
         
 
     def nextitem(self, window):
@@ -79,9 +79,13 @@ class Remote:
             self.artist.set_label(status.artist)
             #self.album.set_label(status.album)
             #self.genre.set_label(status.genre)
-            self.time.set_label(timerepr( status.totaltime - status.time ))
-            self.timeremain.set_label(timerepr( status.totaltime ))
-
+            
+            if status.playstatus > 2:
+                self.time.set_label(timerepr( status.totaltime - status.time ))
+                self.timeremain.set_label(timerepr( status.totaltime ))
+                
+                self.position.set_upper(status.totaltime)
+                self.position.set_value(status.totaltime - status.time)
         
 
     def init_speakers(self):
@@ -103,13 +107,15 @@ class Remote:
 
         self.searchresults = builder.get_object("treestore1")
         self.speakers = builder.get_object("combobox1")
-
+        self.position = builder.get_object("adjustment1")
+        
         builder.connect_signals( self )
 
         self.remote = remotecontrol.remote()
         self.init_speakers()
         self.update_status()
-
+        
+        
 if __name__ == "__main__":
     win = Remote()
     win.window.show_all()
