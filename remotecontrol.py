@@ -71,7 +71,6 @@ class remote:
 
 		resp = self._operation( command, values, False )
 		resp = resp['aply']
-		
 		self.playlists_cache = resp
 		return resp
 
@@ -92,26 +91,118 @@ class remote:
 	
 	"""
 
-
-      // fetch playlists to find the overall magic "Music" playlist
-      Response playlists = RequestHelper.requestParsed(String.format(
-               "%s/databases/%d/containers?session-id=%s&
-               
-               meta=dmap.itemname,dmap.itemcount,dmap.itemid,dmap.persistentid,daap.baseplaylist,com.apple.itunes.special-playlist,com.apple.itunes.smart-playlist,com.apple.itunes.saved-genius,dmap.parentcontainerid,dmap.editcommandssupported", this
-                        .getRequestBase(), this.databaseId, this.sessionId), false);
-
-      for (Response resp : playlists.getNested("aply").getNested("mlcl").findArray("mlit")) {
-         String name = resp.getString("minm");
-         if (name.equals("Music")) {
-            this.musicId = resp.getNumberLong("miid");
-            break;
-         }
-      }
-      Log.d(TAG, String.format("found music-id=%s", this.musicId));
-
-
+       
+       /databases/41/groups?session-id=1131893462&
+       meta=dmap.itemname,dmap.itemid,dmap.persistentid,daap.songartist&
+       type=music&
+       group-type=albums&
+       sort=album&
+       include-sort-headers=1&
+       index=0-7&
+       query=(('com.apple.itunes.mediakind:1',
+        'com.apple.itunes.mediakind:4',
+        'com.apple.itunes.mediakind:8',
+        'com.apple.itunes.mediakind:2097152',
+        'com.apple.itunes.mediakind:2097156')+
+        'daap.songalbum:*V*'+'daap.songalbum!:')
+       
        
        """
+
+	def _query_groups(self, q):
+	    command = '%s/databases/%d/groups' % (self.service, self.databaseid)
+	    mediakind = [1,4,8,2097152,2097156]
+	    qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+	    query="((" + qt + ")+'daap.songalbum:*" + q + "*'+'daap.songalbum!:')"
+        
+	    meta = [
+			'dmap.itemname',
+			'dmap.itemid', 
+			'dmap.persistentid', 
+			'daap.songartist', 
+			]		
+
+	    values = { 
+			"meta": ','.join(meta),
+			"type": 'music',
+			'group-type': 'albums',
+			"sort": "album",
+			"include-sort-headers": '1',
+			"index": ("%d-%d" % (0,7)),
+			"query": query
+		}
+
+	    resp = self._operation( command, values, True )
+        
+
+	"""
+
+    http.request.uri == "/databases/41/browse/artists?
+    session-id=1131893462&
+    include-sort-headers=1&
+    filter=('com.apple.itunes.mediakind:1','com.apple.itunes.mediakind:4',
+    'com.apple.itunes.mediakind:8','com.apple.itunes.mediakind:2097152',
+    'com.apple.itunes.mediakind:2097156')+
+    'daap.songartist!:'+'daap.songartist:*Va*'&index=0-7"
+    
+    """
+	def _query_artists(self, q):
+	    command = '%s/databases/%d/browse/artists' % (self.service, self.databaseid)
+	    mediakind = [1,4,8,2097152,2097156]
+	    qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+	    query="(" + qt + ")+'daap.songartist:*" + q + "*'+'daap.songartist!:'"
+        
+	    values = { 
+			"include-sort-headers": '1',
+			"index": ("%d-%d" % (0,7)),
+			"filter": query
+		}
+
+	    resp = self._operation( command, values, True )
+        
+        
+	"""
+    
+    http.request.uri == "/databases/41/containers/28402/items?
+    session-id=1131893462&
+    meta=dmap.itemname,dmap.itemid,daap.songartist,daap.songalbum,
+    dmap.containeritemid,com.apple.itunes.has-video&
+    type=music&
+    sort=name&
+    include-sort-headers=1&
+    query=(('com.apple.itunes.mediakind:2','com.apple.itunes.mediakind:6',
+    'com.apple.itunes.mediakind:36','com.apple.itunes.mediakind:32',
+    'com.apple.itunes.mediakind:64','com.apple.itunes.mediakind:2097154',
+    'com.apple.itunes.mediakind:2097158')+'dmap.itemname:*Vam*')&
+    index=0-7"
+    
+    """
+	def _query_songs(self, q):
+	    command = '%s/databases/%d/containers/%d/items' % (self.service, self.databaseid, self.musicid)
+	    mediakind = [2,6,36,32,64,2097154,2097158]
+	    qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+	    query="((" + qt + ")+'daap.itemname:*" + q + "*')"
+
+	    meta = [
+			'dmap.itemname',
+			'dmap.itemid', 
+			'dmap.songartist',
+			'dmap.songalbum', 
+			'daap.containeritemid',
+			'com.apple.itunes.has-video'
+			]		
+
+	    values = { 
+			"meta": ','.join(meta),
+			"type": 'music',
+			"sort": "name",
+			"include-sort-headers": '1',
+			"index": ("%d-%d" % (0,7)),
+			"query": query
+		    }
+	    
+	    resp = self._operation( command, values, True )
+    
 
 
 
@@ -119,8 +210,10 @@ class remote:
 		a = []
 		for i in range(len(d)):
 			a.append(d[i])
-		return decode.decode( a, len(d), 0)
-
+		r = decode.decode( a, len(d), 0)
+		print "--+ :)"
+		return r
+		
 	
 	def skip(self):
 		print "skip >>> "
@@ -204,56 +297,6 @@ class remote:
 	def volume(self, value):
 		return self.setproperty( 'dmcp.volume', value)
 		
-
-
-	def search( self, search, start, end):
-		
-		querytype = "('com.apple.itunes.mediakind:1','com.apple.itunes.mediakind:4','com.apple.itunes.mediakind:8')"
-		query = "(" + querytype + "+('dmap.itemname:*%s*','daap.songartist:*%s*','daap.songalbum:*%s*'))" % (search, search, search)
-		
-		values = { 
-			"meta": 'dmap.itemname,dmap.itemid,daap.songartist,daap.songalbum',
-			"type": 'music',
-			"include-sort-headers": '1',
-			"query": query,
-			"sort": "name",
-			"index": ("%d-%d" % (start,end)),
-			'session-id': self.sessionid
-		}
-		
-		command = "%s/databases/%d/containers/%d/items" % (self.service, self.databaseid, self.musicid)	
-		resp = self._operation( command, values )
-		return resp
-
-	def tracks( self, albumid):	
-		values = { 
-			"meta": 'dmap.itemname,dmap.itemid,daap.songartist,daap.songalbum,daap.songalbum,daap.songtime,daap.songtracknumber',
-			"type": 'music',
-			"include-sort-headers": '1',
-			"query": ('daap.songalnbumid:%s' % albumid),
-			"sort": "album",
-			'session-id': self.sessionid
-		}
-		
-		command = "%s/databases/%d/containers/%d/items" % (self.service, self.databaseid, self.musicid)
-		resp = self._operation( command, values )
-		return resp
-
-	def albums( self, start, end):
-		values = { 
-			"meta": 'dmap.itemname,dmap.itemid,dmap.persistentid,daap.songartist',
-			"type": 'music',
-			"group-type": "albums",
-			"include-sort-headers": '1',
-			"sort": "artist",
-			"index": ("%d-%d" % (start,end)),
-			'session-id': self.sessionid
-		}
-		
-		command = "%s/databases/%d/containers/%d/items" % (self.service, self.databaseid, self.musicid)
-		resp = self._operation( command, values )
-		return resp
-
 
 
 
