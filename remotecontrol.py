@@ -158,17 +158,30 @@ class remote:
 		status.show()
 		return status
 		
+	"""
+	And we can seek in the track, where dacp.playingtime is the seek destination in milliseconds:
+
+    http://192.168.254.128:3689/ctrl-int/1/setproperty?dacp.playingtime=82784&session-id=1686799903
+
+"""
+		
 	def setproperty(self, prop, val):
 		print "setproperty >>> "
 		values = {prop: val }
-		return self._ctloperation('playstatusupdate', values)	
+		return self._ctloperation('setproperty', values)	
 		
 	def getproperty(self, prop ):
 		print "getproperty >>> "
-		values = {prop: val }
-		return self._ctloperation('property', prop)	
+		values = {'properties': prop }
+		return self._ctloperation('getproperty', values)	
 		
 		
+	def getvolume(self ):
+		return self.getproperty('dmcp.volume')	
+		
+	def setvolume(self, value ):
+		return self.setproperty('dmcp.volume', value)	
+			
 	def serverinfo(self, prop ):
 		print "server-info >>> "
 		values = {prop: val }
