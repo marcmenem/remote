@@ -9,7 +9,9 @@ import decode
 import response
 
 def _encode( values ):
-	return '&'.join([ str(k) + '=' + str(values[k]) for k in values ])
+    st = '&'.join([ str(k) + '=' + str(values[k]) for k in values ])
+    return st.replace(' ', "%20")
+
 
 class remote:
 	def __init__(self):
@@ -17,7 +19,6 @@ class remote:
 		self.service = 'http://192.168.1.8:3689'
 		self.sessionid = None
 		
-		self.musicid = 44197  # FIXME magic "music" playlist
 
 	def _ctloperation( self, command, values, verbose = True):
 		command = '%s/ctrl-int/1/%s' % (self.service, command)
@@ -47,7 +48,7 @@ class remote:
 	
 	def databases(self):
 		command = '%s/databases' % (self.service)
-		resp = self._operation( command, {} )
+		resp = self._operation( command, {}, False )
 		self.databaseid = resp["avdb"]["mlcl"]["mlit"]["miid"]
 		return resp		
 			
@@ -85,7 +86,8 @@ class remote:
 	
 		print "Got session id", self.sessionid
 		self.databases()
-		self.playlists()
+		pl = self.playlists()
+		self.musicid = pl.library.id
 		
 		return resp
 	
@@ -130,10 +132,10 @@ class remote:
 			"include-sort-headers": '1',
 			"index": ("%d-%d" % (0,7)),
 			"query": query
-		}
+		    }
 
 	    resp = self._operation( command, values, True )
-        
+        #return resp
 
 	"""
 
@@ -159,10 +161,10 @@ class remote:
 		}
 
 	    resp = self._operation( command, values, True )
-        
+        #return resp
+       
         
 	"""
-    
     http.request.uri == "/databases/41/containers/28402/items?
     session-id=1131893462&
     meta=dmap.itemname,dmap.itemid,daap.songartist,daap.songalbum,
@@ -178,7 +180,8 @@ class remote:
     
     """
 	def _query_songs(self, q):
-	    command = '%s/databases/%d/containers/%d/items' % (self.service, self.databaseid, self.musicid)
+	    command = '%s/databases/%d/containers/%d/items' % (self.service, 
+	                                                self.databaseid, self.musicid)
 	    mediakind = [2,6,36,32,64,2097154,2097158]
 	    qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
 	    query="((" + qt + ")+'daap.itemname:*" + q + "*')"
@@ -202,8 +205,10 @@ class remote:
 		    }
 	    
 	    resp = self._operation( command, values, True )
-    
+        
+        #return resp
 
+    
 
 
 	def _decode2(self, d):

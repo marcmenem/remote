@@ -72,12 +72,12 @@ class parser:
 	def _readInteger(self, data, length):
 		st = data[0:length]
 		data = data[length:]
+		
+		#print ">>>>", st, len(st), len(data)
 		if length == 8:
 			return struct.unpack('>Q',st)[0], data
 		if length == 4:
 			return struct.unpack('>I',st)[0], data
-		if length == 2:
-			return struct.unpack('>B',st)[0], data
 		if length == 1:
 			return ord(st), data
 		
@@ -322,6 +322,7 @@ class response(parser):
 		
 		while( handle > 0):
 			key, length, data = self._getkey( data )
+			#print key, length, data
 			
 			handle -= 8 + length
 			progress += 8 + length
@@ -343,7 +344,7 @@ class response(parser):
 	
 			elif key in STRINGS:
 				resp[nicekey], data = self._readString( data, length )
-			elif (length == 1 or length == 2 or length == 4 or length == 0):
+			elif (length == 1 or length == 4 or length == 0):
 				resp[nicekey], data = self._readInteger( data, length )
 			else:
 				resp[nicekey], data = self._readString( data, length )
