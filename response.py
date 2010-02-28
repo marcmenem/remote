@@ -10,7 +10,7 @@ import remotecontrol
 
 LISTENERS = {}
 BRANCHES = ["cmst", "mlog", "agal", "mlcl", "mshl", "mlit", "abro", "abar", 
-                "apso", "caci", "avdb", "cmgt", "aply", "adbs", "casp", "mdcl"]
+                "apso", "caci", "avdb", "cmgt", "aply", "adbs", "casp", "mdcl", 'mupd']
 STRINGS = ["minm", "cann", "cana", "cang", "canl", "asaa", "asal", "asar"]
 
 
@@ -60,6 +60,7 @@ class status:
             if self.playstatus >2:
                 print "Time:\t", self.time
                 print "Total:\t", self.totaltime
+            print "Revision:\t", self.revisionnumber
             
 class playlist:
     def __init__(self):

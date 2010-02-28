@@ -8,6 +8,17 @@ import sys, re
 import decode
 import response
 
+import threading
+
+
+
+class eventman(threading.Thread):
+    
+    def run ( self ):
+        st = self.remote.showStatus( self.remote.nextupdate )
+        print "Update"
+        self.run()
+        
 def _encode( values ):
     st = '&'.join([ str(k) + '=' + str(values[k]) for k in values ])
     return st.replace(' ', "%20")
@@ -96,7 +107,6 @@ class remote:
         url = '%s/login?pairing-guid=%s' % (self.service, self.guid)
 
         data = urllib2.urlopen( url ).read()
-        self._decode2( data )
         
         resp = response.response(data)        
         self.sessionid = resp.resp['mlog']['mlid']
@@ -220,57 +230,45 @@ class remote:
         
     
     def skip(self):
-        print "skip >>> "
         return self._ctloperation('nextitem', {})    
         
     def prev(self):
-        print "prev >>> "
         return self._ctloperation('previtem', {})    
         
     def play(self):
-        print "play >>> "
         return self._ctloperation('playpause', {})    
         
     def pause(self):
-        print "pause >>> "
         return self._ctloperation('pause', {})    
         
     def getspeakers(self):
-        print "speakers >>> "
         spk = self._ctloperation('getspeakers', {}, False)    
         self.speakers = spk['casp']
         return self.speakers
         
     def setspeakers(self, spkid):
-        print "setspeakers >>> "
         values = {'speaker-id': ",".join([ str(self.speakers[idx].id) for idx in spkid]) }
         self._ctloperation('setspeakers', values)    
         return self.getspeakers()
         
         
         
-    def showStatus(self, verbose=False):
-        #print "status >>> "
-        values = {'revision-number': '1' }
+    def showStatus(self, revisionnumber='1', verbose=False):
+        values = {'revision-number': revisionnumber }
         status = self._ctloperation('playstatusupdate', values, verbose)    
         status = status['cmst']
         status.show()
+        self.nextupdate = status.revisionnumber
         return status
         
-    """
-    And we can seek in the track, where dacp.playingtime is the seek destination in milliseconds:
-
-    http://192.168.254.128:3689/ctrl-int/1/setproperty?dacp.playingtime=82784&session-id=1686799903
-
-"""
+    def seek( self, time ):
+        return self.setproperty('dacp.playingtime', time)
         
     def setproperty(self, prop, val):
-        print "setproperty >>> "
         values = {prop: val }
         return self._ctloperation('setproperty', values)    
         
     def getproperty(self, prop ):
-        print "getproperty >>> "
         values = {'properties': prop }
         return self._ctloperation('getproperty', values)    
         
@@ -287,12 +285,10 @@ class remote:
         command = '%s/server-info' % (self.service)
         return self._operation(command, prop)    
         
-    def serverinfo(self, prop ):
+    def serverinfo(self):
         print "server-info >>> "
-        values = {prop: val }
-        command = '%s/update' % (self.service)
-        return self._operation(command, prop)    
-        
+        url = '%s/update' % (self.service)
+        return self._operation(url, {})
         
     def shuffle(self):
         return self.setproperty( 'dacp.shufflestate', '1')
@@ -300,9 +296,11 @@ class remote:
     def repeat(self):
         return self.setproperty( 'dacp.repeatstate', '2')
         
-    def volume(self, value):
-        return self.setproperty( 'dmcp.volume', value)
-        
+    def updatecallback(self):
+        event = eventman()
+        event.remote = self
+        event.start()
+        print "Launched thread"
 
 
 

@@ -15,7 +15,7 @@ def read(queue, size):
 	return pull
 
 group = ['casp', 'cmst','mlog','agal','mlcl','mshl','abro','mlit',
-	'abar','apso','caci','avdb','cmgt','aply','adbs','cmpa', 'mdcl']
+	'abar','apso','caci','avdb','cmgt','aply','adbs','cmpa', 'mdcl', 'mupd']
 
 rebinary = re.compile('[^\x20-\x7e]')
 

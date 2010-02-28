@@ -37,7 +37,8 @@ class Remote:
         
     def volumerelease(self, window):
         volume = 50  #FIXME
-        self.remote.volume(volume)
+        print "FIXME"
+        self.remote.setvolume(volume)
         self.update_volume()
     
     def update_volume(self):
