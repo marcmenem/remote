@@ -116,14 +116,6 @@
       </row>
     </data>
   </object>
-  <object class="GtkListStore" id="liststore2">
-    <columns>
-      <!-- column-name active -->
-      <column type="GtkButtonBoxStyle"/>
-      <!-- column-name speakername -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkTreeStore" id="treestore1">
     <columns>
       <!-- column-name Track -->
@@ -131,6 +123,12 @@
       <!-- column-name Artist -->
       <column type="gchararray"/>
       <!-- column-name Album -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="liststore2">
+    <columns>
+      <!-- column-name speakername -->
       <column type="gchararray"/>
     </columns>
   </object>
@@ -274,7 +272,6 @@ audio-volume-medium</property>
                     <property name="digits">0</property>
                     <property name="draw_value">False</property>
                     <property name="value_pos">left</property>
-                    <signal name="value_changed" handler="trackseek"/>
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -299,6 +296,12 @@ audio-volume-medium</property>
                 <property name="visible">True</property>
                 <property name="resize_mode">immediate</property>
                 <property name="model">liststore2</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext8"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
               </object>
               <packing>
                 <property name="position">4</property>
@@ -410,10 +413,53 @@ audio-volume-medium</property>
           </packing>
         </child>
         <child>
-          <object class="GtkTreeView" id="treeview2">
+          <object class="GtkScrolledWindow" id="scrolledwindow2">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="model">liststore1</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <object class="GtkTreeView" id="treeview2">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="model">liststore1</property>
+                <property name="headers_clickable">False</property>
+                <property name="search_column">0</property>
+                <child>
+                  <object class="GtkTreeViewColumn" id="Track2">
+                    <property name="title">Track</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="Artist1">
+                    <property name="title">Artist</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                      <attributes>
+                        <attribute name="markup">1</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="Album">
+                    <property name="title">Album</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext6"/>
+                      <attributes>
+                        <attribute name="text">2</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="position">2</property>
@@ -437,6 +483,5 @@ audio-volume-medium</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
     <property name="page_size">10</property>
-    <signal name="value_changed" handler="trackseek"/>
   </object>
 </interface>
