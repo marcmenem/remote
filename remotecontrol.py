@@ -9,9 +9,7 @@ import decode
 import response
 
 def _encode( values ):
-    st = '&'.join([ str(k) + '=' + str(values[k]) for k in values ])
-    return st.replace(' ', "%20")
-
+	return '&'.join([ str(k) + '=' + str(values[k]) for k in values ])
 
 class remote:
 	def __init__(self):
@@ -19,6 +17,7 @@ class remote:
 		self.service = 'http://192.168.1.8:3689'
 		self.sessionid = None
 		
+		self.musicid = 44197  # FIXME magic "music" playlist
 
 	def _ctloperation( self, command, values, verbose = True):
 		command = '%s/ctrl-int/1/%s' % (self.service, command)
@@ -48,7 +47,7 @@ class remote:
 	
 	def databases(self):
 		command = '%s/databases' % (self.service)
-		resp = self._operation( command, {}, False )
+		resp = self._operation( command, {} )
 		self.databaseid = resp["avdb"]["mlcl"]["mlit"]["miid"]
 		return resp		
 			
@@ -72,7 +71,7 @@ class remote:
 
 		resp = self._operation( command, values, False )
 		resp = resp['aply']
-		self.playlists_cache = resp
+		self.musicid = resp.library.id
 		return resp
 
 	def pairing(self):
@@ -86,8 +85,7 @@ class remote:
 	
 		print "Got session id", self.sessionid
 		self.databases()
-		pl = self.playlists()
-		self.musicid = pl.library.id
+		self.playlists()
 		
 		return resp
 	
@@ -132,11 +130,10 @@ class remote:
 			"include-sort-headers": '1',
 			"index": ("%d-%d" % (0,7)),
 			"query": query
-		    }
+		}
 
 	    resp = self._operation( command, values, True )
         
-	    return resp
 
 	"""
 
@@ -163,10 +160,9 @@ class remote:
 
 	    resp = self._operation( command, values, True )
         
-	    return resp
-       
         
 	"""
+    
     http.request.uri == "/databases/41/containers/28402/items?
     session-id=1131893462&
     meta=dmap.itemname,dmap.itemid,daap.songartist,daap.songalbum,
@@ -182,8 +178,7 @@ class remote:
     
     """
 	def _query_songs(self, q):
-	    command = '%s/databases/%d/containers/%d/items' % (self.service, 
-	                                                self.databaseid, self.musicid)
+	    command = '%s/databases/%d/containers/%d/items' % (self.service, self.databaseid, self.musicid)
 	    mediakind = [2,6,36,32,64,2097154,2097158]
 	    qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
 	    query="((" + qt + ")+'daap.itemname:*" + q + "*')"
@@ -207,10 +202,8 @@ class remote:
 		    }
 	    
 	    resp = self._operation( command, values, True )
-        
-	    return resp
-
     
+
 
 
 	def _decode2(self, d):
@@ -240,8 +233,7 @@ class remote:
 		
 	def getspeakers(self):
 		print "speakers >>> "
-		spk = self._ctloperation('getspeakers', {}, False)	
-		return spk['casp']
+		return self._ctloperation('getspeakers', {})	
 		
 	def setspeakers(self, spkid):
 		print "setspeakers >>> "
@@ -258,30 +250,17 @@ class remote:
 		status.show()
 		return status
 		
-	"""
-	And we can seek in the track, where dacp.playingtime is the seek destination in milliseconds:
-
-    http://192.168.254.128:3689/ctrl-int/1/setproperty?dacp.playingtime=82784&session-id=1686799903
-
-"""
-		
 	def setproperty(self, prop, val):
 		print "setproperty >>> "
 		values = {prop: val }
-		return self._ctloperation('setproperty', values)	
+		return self._ctloperation('playstatusupdate', values)	
 		
 	def getproperty(self, prop ):
 		print "getproperty >>> "
-		values = {'properties': prop }
-		return self._ctloperation('getproperty', values)	
+		values = {prop: val }
+		return self._ctloperation('property', prop)	
 		
 		
-	def getvolume(self ):
-		return self.getproperty('dmcp.volume')	
-		
-	def setvolume(self, value ):
-		return self.setproperty('dmcp.volume', value)	
-			
 	def serverinfo(self, prop ):
 		print "server-info >>> "
 		values = {prop: val }

@@ -14,7 +14,7 @@ def read(queue, size):
 	del queue[0:size]
 	return pull
 
-group = ['casp', 'cmst','mlog','agal','mlcl','mshl','abro','mlit',
+group = ['casp', 'cmst','mlog','agal','mlcl','mshl','mlit','abro',
 	'abar','apso','caci','avdb','cmgt','aply','adbs','cmpa', 'mdcl']
 
 rebinary = re.compile('[^\x20-\x7e]')
@@ -35,14 +35,10 @@ def decode(raw, handle, indent):
 		plen = asint(read(raw, 4))
 		handle -= 8 + plen
 		
-		#print ptype, raw[0:10], plen, handle
-		
 		# recurse into groups
 		if ptype in group:
-			if ptype == 'abar': group.remove('mlit') ## wtf ?
 			print '\t' * indent, ptype, " --+"
 			decode(raw, plen, indent + 1)
-			if ptype == 'abar': group.append('mlit')
 			continue
 		
 		# read and parse data
@@ -53,15 +49,12 @@ def decode(raw, handle, indent):
 		#if plen == 4: nice = '%s == %s' % (ashex(pdata), asint(pdata))
 		#if plen == 8: nice = '%s == %s' % (ashex(pdata), aslong(pdata))
 		
-		try:
-			if plen == 1: nice = '%s' % (asbyte(pdata))
-			if plen == 4: nice = '%s' % (asint(pdata))
-			if plen == 8: nice = '%s' % (aslong(pdata))
+		if plen == 1: nice = '%s' % (asbyte(pdata))
+		if plen == 4: nice = '%s' % (asint(pdata))
+		if plen == 8: nice = '%s' % (aslong(pdata))
 		
-			if rebinary.search(pdata) is None:
-				nice += ' #(%s)' % (pdata)
-		except:
-			nice = 'ERROR'
+		if rebinary.search(pdata) is None:
+			nice += ' #(%s)' % (pdata)
 		
 		print '\t' * indent, ptype.ljust(6), str(plen).ljust(6), nice
 
