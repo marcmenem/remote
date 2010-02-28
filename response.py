@@ -338,7 +338,11 @@ class response(parser):
 				data = data[length:]
 				
 			elif key in BRANCHES:
+			
+				if key == 'abar': BRANCHES.remove('mlit') ## wtf ?'
 				branch = self.parse( data, length ) #listener, listenFor, length )
+				if key == 'abar': BRANCHES.append('mlit') ## wtf ?'
+				
 				data = data[length:]
 				resp[nicekey] = branch
 	

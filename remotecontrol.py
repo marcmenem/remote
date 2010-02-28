@@ -135,7 +135,8 @@ class remote:
 		    }
 
 	    resp = self._operation( command, values, True )
-        #return resp
+        
+	    return resp
 
 	"""
 
@@ -161,7 +162,8 @@ class remote:
 		}
 
 	    resp = self._operation( command, values, True )
-        #return resp
+        
+	    return resp
        
         
 	"""
