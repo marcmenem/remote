@@ -4,9 +4,34 @@
 import pygtk
 pygtk.require( "2.0" )
 import gtk
+import gobject
 
 import remotecontrol
-import gobject
+
+import threading 
+
+class searcher(threading.Thread):
+    def __init__(self, win):
+        super(searcher, self).__init__()
+        self.win = win
+        
+    def run(self):
+        print "Searching", self.value
+        res = self.win.remote.query(self.value)
+        gobject.idle_add(self.win.reset_search, res)
+
+class listener(threading.Thread):
+    def __init__(self, win):
+        super(listener, self).__init__()
+        self.win = win
+        self.do = True
+        
+    def run(self):
+        while self.do:
+            print "Waiting server events"
+            st = self.win.remote.showStatus( self.win.remote.nextupdate )
+            gobject.idle_add(self.win.update_status, st)
+
 
 def timerepr(t1):
 	min = t1 / ( 60000 )
@@ -18,17 +43,41 @@ class Remote:
         gtk.main_quit()
 
     def searchchanged(self, window):
-        value = 'Nina' #FIXME
-        self.reset_search()
-        artists = self.remote.searchartist(value)
-        self.add_results("Artists", artists)
-        albums = self.remote.searchalbum(value)
-        self.add_results("Albums", albums)
-        tracks = self.remote.searchtracks(value)
-        self.add_results("Tracks", tracks)
+        s = searcher(self)
+        s.value = self.entry.get_text()
+        s.start()
+
         
-    def reset_search(self):
+    def reset_search(self, res):
         print "Reset search"   
+        try:
+            while self.searchresults.remove(self.searchresults.get_iter_first()):
+                pass
+        except:
+            pass
+            
+        albums = self.searchresults.append(None)
+        self.searchresults.set_value( albums, 0, 'Albums' )
+        self.searchresults.set_value( albums, 1, str(res.albums.totnb) )
+        for pl in res.albums.list:
+            row = self.searchresults.append(albums)
+            self.searchresults.set_value( row, 0, pl.name )
+
+        artists = self.searchresults.append(None)
+        self.searchresults.set_value( artists, 0, 'Artist' )
+        self.searchresults.set_value( artists, 1, str(res.artists.totnb) )
+        for pl in res.artists.list:
+            row = self.searchresults.append(artists)
+            self.searchresults.set_value( row, 0, pl )
+
+        tracks = self.searchresults.append(None)
+        self.searchresults.set_value( tracks, 0, 'Songs' )
+        self.searchresults.set_value( tracks, 1, str(res.tracks.totnb) )
+        for pl in res.tracks.list:
+            row = self.searchresults.append(tracks)
+            self.searchresults.set_value( row, 0, pl.name )
+       
+            
         
     def add_results(self, category, results):
         #FIXME
@@ -51,15 +100,12 @@ class Remote:
 
     def nextitem(self, window):
         self.remote.skip()
-        self.update_status()
         
     def play(self, window):
         self.remote.play()
-        self.update_status()
         
     def previtem(self, window):
         self.remote.prev()
-        self.update_status()
 
     def cb_delete_event( self, window, event ):
         # Run dialog
@@ -73,8 +119,8 @@ class Remote:
         self.about_dialog.run()
         self.about_dialog.hide()
 
-    def update_status(self):
-        status = self.remote.showStatus()
+    def update_status(self, status = None):
+        if not status: status = self.remote.showStatus()
         if status.ok():
             self.track.set_label(status.track)
             self.artist.set_label(status.artist)
@@ -148,6 +194,7 @@ class Remote:
         
         self.playlists = builder.get_object("liststore1")
         self.speakerslist = builder.get_object("liststore2")
+        self.entry = builder.get_object("entry1")
         
         builder.connect_signals( self )
 
@@ -155,11 +202,17 @@ class Remote:
         self.update_speakers()
         self.update_status()
         self.update_playlists()
-        
+        self.ui_updater = listener(self)
+        self.ui_updater.start()
         
         
 if __name__ == "__main__":
     win = Remote()
     win.window.show_all()
+    gobject.threads_init()
+
+    gtk.gdk.threads_enter()
     gtk.main()
+    gtk.gdk.threads_leave()
+
 

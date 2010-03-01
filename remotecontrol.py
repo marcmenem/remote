@@ -206,7 +206,7 @@ class remote:
             "query": query
             }
         
-        resp = self._operation( command, values, True )
+        resp = self._operation( command, values, False )
         return resp['apso']
 
     
