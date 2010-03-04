@@ -2,11 +2,14 @@
 
 import socket
 import struct 
-
+import re
+import select
+import sys
+import pybonjour
+import datetime
 
 def send(clientsocket): 
-    rcv = clientsocket.recv(1000)
-    print rcv
+    rcv = clientsocket.recv(1024)
     """
     GET /pair?pairingcode=75D809650423A40091193AA4944D1FBD&servicename=985461928A772733 HTTP/1.1
     Host: 192.168.1.8:1024
@@ -15,6 +18,17 @@ def send(clientsocket):
     Connection: close
     """
 
+    ua = re.compile("User-Agent: (.*)")
+    co = re.compile("GET.*?=([A-F0-9]*)&.*?=([A-F0-9]*)")
+    
+    for l in rcv.split('\n'):
+        m = ua.match(l)
+        n = co.match(l)
+        if m:
+            useragent = m.group(1)
+        if n:
+            pairingcode = n.group(1)
+            servicename = n.group(2)
     
     # any incoming requests are just pairing code related 
     # return our guid regardless of input 
@@ -29,46 +43,26 @@ def send(clientsocket):
     header = 'cmpa%s' % (struct.pack('>i', len(encoded))) 
     encoded = '%s%s' % (header, encoded) 
     
+    "Fri, 31 Dec 1999 23:59:59 GMT"
+    dt = datetime.datetime.today().strftime('%a, %d %b %Y %H:%M:%S %Z')
+    
     http_headers = """HTTP/1.0 200 OK
-Date: Fri, 31 Dec 1999 23:59:59 GMT
+Date: %s
 Content-Type: text/html
 Content-Length: %s
 
-""" % len(encoded)
+""" % (dt ,len(encoded))
 
-    print http_headers
+    print http_headers, values
     clientsocket.send( http_headers )
     clientsocket.send(encoded) 
+    clientsocket.close()
     return 
 
-
-import select
-import sys
-import pybonjour
-
-"""
-<?xml version="1.0" standalone='no'?>
-<!--*-nxml-*--> 
-<!DOCTYPE service-group SYSTEM "avahi-service.dtd"> 
-<service-group>  
-	<name>0000000000000000000000000000000000000001</name>  
-	<service>  
-		<type>_touch-remote._tcp</type>  
-		<port>1024</port>  
-		<txt-record>DvNm=Android remote</txt-record>  
-		<txt-record>RemV=10000</txt-record>  
-		<txt-record>DvTy=iPod</txt-record>  
-		<txt-record>RemN=Remote</txt-record>  
-		<txt-record>txtvers=1</txt-record>  
-		<txt-record>Pair=0000000000000001</txt-record>  
-	</service> 
-</service-group> 
-"""
 
 
 name    = '0000000000000001'
 regtype = '_touch-remote._tcp'
-port    = 1024
 
 def register_callback(sdRef, flags, errorCode, name, regtype, domain):
     if errorCode == pybonjour.kDNSServiceErr_NoError:
@@ -88,19 +82,38 @@ data = {
    }
 txtrecord = pybonjour.TXTRecord(data)
 
-sdRef = pybonjour.DNSServiceRegister(name = name,
-                                     regtype = regtype,
-                                     port = port, txtRecord = txtrecord,
-                                     callBack = register_callback)
 
+
+def register_services(port):
+    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serversocket.bind((socket.gethostname(), port))
+    serversocket.listen(5)
+    
+    sdRef = pybonjour.DNSServiceRegister(name = name,
+                                 regtype = regtype,
+                                 port = port, txtRecord = txtrecord,
+                                 callBack = register_callback)
+
+    return serversocket, sdRef
 
 if __name__ == "__main__":
     poll_interval = 0.5
     
     try:
-        serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        serversocket.bind((socket.gethostname(), port))
-        serversocket.listen(5)
+        port    = 1024
+        connected = False
+        
+        while not connected:
+            try:
+                serversocket, sdRef = register_services( port )
+                connected = True
+            except socket.error, e:
+                if e.errno == 48:
+                    port += 1
+                    print "Address already in use, trying port", port 
+                else:
+                    print "Unknown error"
+                    raise
         
         while True:
             ready_to_read, w, in_error = select.select([serversocket, sdRef], [], [], poll_interval)
@@ -115,7 +128,6 @@ if __name__ == "__main__":
         
                 else:
                     print ready_to_read
-    
     finally:
         sdRef.close()
         serversocket.close() 
