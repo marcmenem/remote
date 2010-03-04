@@ -35,7 +35,7 @@ class itunes:
         if not self.isresolved: return [self.resolve_sdRef]
         if not self.isqueried: return [self.query_sdRef]
     
-    def resolved(self, hosttarget, fullname, port):
+    def resolved(self, hosttarget, fullname, port, txtRecord):
         self.isresolved = True
         self.query_sdRef = pybonjour.DNSServiceQueryRecord(
                                         interfaceIndex = self.interfaceIndex,
@@ -45,6 +45,8 @@ class itunes:
         self.fullname = fullname
         self.hosttarget = hosttarget
         self.port = port
+        self.txtRecord = pybonjour.TXTRecord.parse(txtRecord)
+        
         self.resolve_sdRef.close()
         self.resolve_sdRef = None
         
@@ -60,6 +62,9 @@ class itunes:
         print '  hosttarget =', self.hosttarget
         print '  port       =', self.port  
         print '  IP         =', self.ip  
+        
+        for k in self.txtRecord: print k[0], '=', k[1]
+
 
     def closeConnexions(self):
         if self.resolve_sdRef: self.resolve_sdRef.close()
@@ -70,18 +75,18 @@ class itunes:
 def query_record_callback(sdRef, flags, interfaceIndex, errorCode, fullname,
                           rrtype, rrclass, rdata, ttl):
     if errorCode == pybonjour.kDNSServiceErr_NoError:
-        #it = itunesClients[fullname.split(".")[0]]
-        it = itunesClients.values()[0]
-        print "FIXME"
-        it.queried( rdata )
-        it.show()
+        for it in itunesClients.values():
+            if it.query_sdRef == sdRef:
+                it.queried( rdata )
+                it.show()
+                return
         
 
 def resolve_callback(sdRef, flags, interfaceIndex, errorCode, fullname,
                      hosttarget, port, txtRecord):
     if errorCode == pybonjour.kDNSServiceErr_NoError:
         it = itunesClients[fullname.split(".")[0]]
-        it.resolved( hosttarget, fullname, port )
+        it.resolved( hosttarget, fullname, port, txtRecord )
 
 
 def browse_callback(sdRef, flags, interfaceIndex, errorCode, serviceName,
@@ -95,7 +100,7 @@ def browse_callback(sdRef, flags, interfaceIndex, errorCode, serviceName,
         resolve_sdRef = it.resolve_sdRef
     else:
         print 'Service removed', interfaceIndex, serviceName, replyDomain
-        it= itunesClients[ serviceName ]
+        it = itunesClients[ serviceName ]
         it.closeConnexions()
         del itunesClients[serviceName]
 
@@ -120,7 +125,7 @@ def populateITunes():
                 ready, w, e = select.select(socks, [], [], timeout)
                 
                 if len(ready) == 0:
-                    #print "Resolve timed out"
+                    # Remove 
                     for client in processing:
                         client.closeConnexions()
                         del itunesClients[client.serviceName]
