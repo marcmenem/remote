@@ -109,17 +109,21 @@ def populateITunes():
 
                 timeout = None
                 socks = [browse_sdRef]
+                processing = []
                 for client in itunesClients.values():
                     extra = client.sockets()
                     if extra:
+                        processing.append( client )
                         socks.extend(extra)
                         timeout = 5
                 
                 ready, w, e = select.select(socks, [], [], timeout)
                 
                 if len(ready) == 0:
-                    print "Resolve timed out"
-                    #need to remove timed out clients
+                    #print "Resolve timed out"
+                    for client in processing:
+                        client.closeConnexions()
+                        del itunesClients[client.serviceName]
                 
                 for sock in ready:
                     pybonjour.DNSServiceProcessResult(sock)
