@@ -1,5 +1,28 @@
 #!/usr/bin/python -i
 
+#Copyright (C) 2010 Marc Menem
+
+#This file is part of Remote. Remote is free software: you can
+#redistribute it and/or modify it under the terms of the GNU General
+#Public License as published by the Free Software Foundation, either
+#version 3 of the License, or (at your option) any later version.
+
+#Remote is distributed in the hope that it will be useful, but
+#WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with Remote. If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Some info about the protocol on these pages:
+
+http://dacp.jsharkey.org/
+http://daap.sourceforge.net/docs/index.html
+
+"""
+
 import urllib
 import urllib2
 import struct
@@ -8,9 +31,12 @@ import sys, re
 import decode
 import response
 
+import time
 import threading
 
 import ConfigParser
+
+import connect
 
 config = ConfigParser.RawConfigParser()
 filename = 'remotecontrol.cfg'
@@ -35,14 +61,18 @@ class daemonThread( threading.Thread ):
 
 class eventman(daemonThread):
     def run ( self ):
-        if not 'nextupdate' in dir(self.remote): self.remote.showStatus()
+        if not hasattr(self.remote,'nextupdate'): 
+            self.remote.showStatus()
+            self.remote.artwork = self.remote.nowplayingartwork()
         st = self.remote.showStatus( self.remote.nextupdate )
         print "Update"
+        self.remote.artwork = self.remote.nowplayingartwork()
+        
         self.run()
 
 class playlistman(daemonThread):
     def run ( self ):
-        if not 'nextplaylistupdate' in dir(self.remote): self.remote.update()
+        if not hasattr(self.remote,'nextplaylistupdate'): self.remote.update()
         st = self.remote.update( self.remote.nextplaylistupdate )
         print "Update playlist"
         self.run()        
@@ -74,8 +104,9 @@ class results:
 class remote:
     def __init__(self, ip, port):
         self.guid="0x0000000000000001"
-        self.service = 'http://' + ip + ':' + port
+        self.service = 'http://' + ip + ':' + str(port)
         self.sessionid = None
+        print "Connecting to", self.service
         
 
     def _ctloperation( self, command, values, verbose = True):
@@ -95,14 +126,23 @@ class remote:
         
         headers = { 'Viewer-Only-Client': '1'  }
         request = urllib2.Request( url, None, headers )
-        resp = urllib2.urlopen(request)
-        out = resp.read()
         
-        if verbose: self._decode2( out )
-        resp = response.response( out )
-        
-        return resp.resp
-    
+        try:
+            resp = urllib2.urlopen(request)
+            headers = resp.headers.dict
+            
+            out = resp.read()
+            if headers['content-type'] != 'image/png':
+                
+                if verbose: self._decode2( out )
+                resp = response.response( out )
+                
+                return resp.resp
+            else:
+                return out
+        except:
+            print "CAUGHT ERROR"
+            return None
     
     def databases(self):
         command = '%s/databases' % (self.service)
@@ -150,7 +190,11 @@ class remote:
         
         return resp
     
-    
+    def logout(self):
+        url = '%s/logout' % (self.service)
+        lo = self._operation( url, {})
+        self.sessionid = None
+        return lo
     
     def _query_groups(self, q):
         command = '%s/databases/%d/groups' % (self.service, self.databaseid)
@@ -321,20 +365,59 @@ class remote:
         
     # Blocks until playlist is updated
     def update(self, rev=None):
-        print "server-info >>> "
         url = '%s/update' % (self.service)
         if rev: 
             values = {'revision-number':rev}
         else:
             values = {}
-        up = self._operation(url, values)
+        up = self._operation(url, values, verbose=False)
         self.nextplaylistupdate = up['mupd']['musr']
         return up
         
+        
+    """
+            def do_GET_server_info(self):
+            msrv = do('dmap.serverinforesponse',
+                      [ do('dmap.status', 200),
+                        do('dmap.protocolversion', '2.0'),
+                        do('daap.protocolversion', '3.0'),
+                        do('dmap.timeoutinterval', 1800),
+                        do('dmap.itemname', server_name),
+                        do('dmap.loginrequired', 0),
+                        do('dmap.authenticationmethod', 0),
+                        do('dmap.supportsextensions', 0),
+                        do('dmap.supportsindex', 0),
+                        do('dmap.supportsbrowse', 0),
+                        do('dmap.supportsquery', 0),
+                        do('dmap.supportspersistentids', 0),
+                        do('dmap.databasescount', 1),                
+                        #do('dmap.supportsautologout', 0),
+                        #do('dmap.supportsupdate', 0),
+                        #do('dmap.supportsresolve', 0),
+                       ])
+    """
     def serverinfo(self):
-        print "server-info >>> "
         url = '%s/server-info' % (self.service)
-        return self._operation(url, {}, sessionid=False)
+        return self._operation(url, {}, sessionid=False, verbose=False)
+        
+    """
+    This request serves to return the list of content codes in use by the server. This allows the 
+    server to be updated to contain new fields and older clients can still connect without trouble. 
+    In fact, this also allowed us to decode the entirety of the protocol very easily.
+    """
+    def contentcodes(self):
+        print "content-codes >>> "
+        url = '%s/content-codes' % (self.service)
+        return self._operation(url, {})
+        
+    " ??? "
+    def resolve(self):
+        print "resole >>> "
+        url = '%s/resolve' % (self.service)
+        return self._operation(url, {})
+        
+                
+        
         
     def shuffle(self, state):
         return self.setproperty( 'dacp.shufflestate', state)
@@ -353,9 +436,35 @@ class remote:
         pl.remote = self
         pl.start()
 
+    def nowplayingartwork(self, savetofile=True):
+        data = self._ctloperation('nowplayingartwork', {'mw': '320', 'mh': '320'}, verbose=True)
+        if savetofile and (len(data) > 0):
+            filename = 'nowplaying.png'
+            nowplaying_png = open(filename, 'w')
+            nowplaying_png.write(data)
+            nowplaying_png.close()
+            print "Saved to file", filename
+        return data
 
 
-"GET /ctrl-int/1/nowplayingartwork?mw=320&mh=320&session-id=284830210"
+        
+    def playSong(self, song, index=0):
+        mediakind = [1,4,8,2097152,2097156]
+        
+        qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+        query="((" + qt + ")+'dmap.itemname:*" + song + "*')"
+
+        values = { 
+            'command': 'play', 
+            "sort": "name",
+            "include-sort-headers": '1',
+            'index': index,
+            "query": query
+            }
+    
+        return self._ctloperation('cue', values)
+        
+        
 
 """
 /ctrl-int/1/cue?command=play&
@@ -370,10 +479,29 @@ class remote:
 
 
 if __name__ == "__main__":
-    conn = remote('192.168.1.8', '3689')
+    requiredDB = 'Biblioth\xc3\xa8que de \xc2\xab\xc2\xa0Marc Menem\xc2\xa0\xc2\xbb'
 
+    connect.browse().start()
+    conn = None
+    while not conn:
+        if len(connect.itunesClients) > 0:
+            for it in connect.itunesClients.values():
+                conn2 = remote(it.ip, it.port)
+                si = conn2.serverinfo()
+                dbn = si['msrv']['minm']
+                if dbn == requiredDB:
+                    conn = conn2
+                else:
+                    print "Skipping", dbn
+        else:
+            time.sleep(0.5)
 
+    import atexit
 
+    @atexit.register
+    def goodbye():
+        print "Logging out"
+        conn.logout()
 
 
 

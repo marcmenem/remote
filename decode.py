@@ -27,6 +27,7 @@ def ashex(s): return ''.join(s)
 
 def asbyte(s): return struct.unpack('>B', s)[0]
 def asint(s): return struct.unpack('>I', s)[0]
+def as2b(s): return struct.unpack('>H', s)[0]
 def aslong(s): return struct.unpack('>Q', s)[0]
 
 
@@ -58,6 +59,7 @@ def decode(raw, handle, indent):
 		
 		try:
 			if plen == 1: nice = '%s' % (asbyte(pdata))
+			if plen == 2: nice = '%s' % (as2b(pdata))
 			if plen == 4: nice = '%s' % (asint(pdata))
 			if plen == 8: nice = '%s' % (aslong(pdata))
 		

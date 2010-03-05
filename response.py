@@ -11,7 +11,7 @@ import remotecontrol
 LISTENERS = {}
 BRANCHES = ["cmst", "mlog", "agal", "mlcl", "mshl", "mlit", "abro", "abar", 
                 "apso", "caci", "avdb", "cmgt", "aply", "adbs", "casp", "mdcl", 'mupd', 
-                "msrv", "msml", 'cacr']
+                "msrv", "msml", 'cacr', 'mccr', 'arsv']
 STRINGS = ["minm", "cann", "cana", "cang", "canl", "asaa", "asal", "asar"]
 
 
@@ -49,7 +49,7 @@ class status:
         self.unknown = []
 
     def ok(self):
-        return 'artist' in dir(self) and 'album' in dir(self) and 'track' in dir(self)  and 'genre' in dir(self)
+        return hasattr(self,'artist') and hasattr(self,'album') and hasattr(self,'track') and hasattr(self,'genre')
     
     def show(self):
         if( self.ok() ):
@@ -105,6 +105,8 @@ class parser:
             return struct.unpack('>Q',st)[0], data
         if length == 4:
             return struct.unpack('>I',st)[0], data
+        if length == 2:
+            return struct.unpack('>H',st)[0], data
         if length == 1:
             return ord(st), data
         
@@ -535,7 +537,7 @@ class response(parser):
     
             elif key in STRINGS:
                 resp[nicekey], data = self._readString( data, length )
-            elif (length == 1 or length == 4):
+            elif (length == 1 or length == 4 or length == 2):
                 resp[nicekey], data = self._readInteger( data, length )
             elif (length == 0):
                 resp[nicekey] = None
