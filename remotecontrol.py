@@ -161,6 +161,28 @@ class remote:
         self.databaseid = resp["avdb"]["mlcl"]["mlit"]["miid"]
         return resp        
             
+    def pairing(self):
+        url = '%s/login?pairing-guid=%s' % (self.service, self.guid)
+
+        data = urllib2.urlopen( url ).read()
+        
+        resp = response.response(data)        
+        self.sessionid = resp.resp['mlog']['mlid']
+    
+        print "Got session id", self.sessionid
+        self.databases()
+        pl = self.playlists()
+        self.musicid = pl.library.id
+        self.getspeakers()
+        
+        return resp
+    
+    def logout(self):
+        url = '%s/logout' % (self.service)
+        lo = self._operation( url, {})
+        self.sessionid = None
+        return lo
+    
     def playlists(self):
         command = '%s/databases/%d/containers' % (self.service, self.databaseid)
         meta = [
@@ -184,38 +206,15 @@ class remote:
         self.playlists_cache = resp
         return resp
 
-
-    def pairing(self):
-        url = '%s/login?pairing-guid=%s' % (self.service, self.guid)
-
-        data = urllib2.urlopen( url ).read()
-        
-        resp = response.response(data)        
-        self.sessionid = resp.resp['mlog']['mlid']
     
-        print "Got session id", self.sessionid
-        self.databases()
-        pl = self.playlists()
-        self.musicid = pl.library.id
-        self.getspeakers()
-        
-        return resp
-    
-    def logout(self):
-        url = '%s/logout' % (self.service)
-        lo = self._operation( url, {})
-        self.sessionid = None
-        return lo
-    
-    def _query_groups(self, q=None, startid=0, endid=7 verbose=False):
+    def _query_groups(self, q=None, startid=0, nbitem=8, verbose=False):
         command = '%s/databases/%d/groups' % (self.service, self.databaseid)
         
         meta = [
             'dmap.itemname',
             'dmap.itemid', 
             'dmap.persistentid', 
-            'daap.songartist',
-            
+            'daap.songartist'
             ]        
 
         values = { 
@@ -224,8 +223,9 @@ class remote:
             'group-type': 'albums',
             "sort": "album",
             "include-sort-headers": '1',
-            "index": ("%d-%d" % (startid,endid)),
+            "index": ("%d-%d" % (startid, nbitem - startid - 1)),
             }
+            
         if q:
             mediakind = [1,4,8,2097152,2097156]
             qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
@@ -236,12 +236,12 @@ class remote:
         return resp['agal']
 
     
-    def _query_artists(self, q=None, startid=0, endid=7):
+    def _query_artists(self, q=None, startid=0, nbitem=8):
         command = '%s/databases/%d/browse/artists' % (self.service, self.databaseid)
         
         values = { 
             "include-sort-headers": '1',
-            "index": ("%d-%d" % (startid,endid))
+            "index": ("%d-%d" % (startid,nbitem - startid - 1))
         }
 
         if q:
@@ -253,31 +253,10 @@ class remote:
         resp = self._operation( command, values, False )
         return resp['abro']
        
-
-    def getallitems(self, index='0-100'):
-        meta = [
-            'dmap.itemname', 
-            'dmap.itemcount', 
-            'dmap.itemid', 
-            'dmap.persistentid', 
-            'daap.baseplaylist', 
-            'com.apple.itunes.special-playlist', 
-            'dmap.parentcontainerid', 
-            'dmap.itemname',
-            'dmap.itemid', 
-            'dmap.songartist',
-            'dmap.songalbum', 
-            'daap.containeritemid'
-            ]        
-        values = { 'meta': ','.join(meta), 
-                   'index': index}
         
-        return self._operation('%s/databases/%s/items' % (self.service, self.databaseid), values)
-        
-        
-    def _query_songs(self, q=None, startid=0, endid=7):
-        command = '%s/databases/%d/containers/%d/items' % (self.service, 
-                                                    self.databaseid, self.musicid)
+    def _query_songs(self, q=None, startid=0, nbitem=8, containerid=None, verbose=False):
+        if not containerid: containerid = self.musicid
+        command = '%s/databases/%d/containers/%d/items' % (self.service, self.databaseid, containerid)
         
         meta = [
             'dmap.itemname',
@@ -293,7 +272,7 @@ class remote:
             "type": 'music',
             "sort": "name",
             "include-sort-headers": '1',
-            "index": ("%d-%d" % (startid,endid)),
+            "index": ("%d-%d" % (startid, nbitem - startid - 1)),
             }
 
         if q:
@@ -304,7 +283,7 @@ class remote:
             query="((" + qt + ")+'dmap.itemname:*" + q + "*')"
             values['query'] = query
         
-        resp = self._operation( command, values, False )
+        resp = self._operation( command, values, verbose=verbose )
         return resp['apso']
 
     
