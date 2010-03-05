@@ -5,6 +5,7 @@ import socket
 import sys
 import pybonjour
 
+import threading
 
 regtype  = '_touch-able._tcp'
 timeout  = 5
@@ -22,13 +23,8 @@ class itunes:
     
         print 'Service added; resolving', interfaceIndex, serviceName, replyDomain
         
-        self.resolve_sdRef = pybonjour.DNSServiceResolve(
-                                0,
-                                interfaceIndex,
-                                serviceName,
-                                regtype,
-                                replyDomain,
-                                resolve_callback)
+        self.resolve_sdRef = pybonjour.DNSServiceResolve( 0, interfaceIndex, serviceName,
+                                regtype, replyDomain, resolve_callback)
     
         
     def sockets(self):
@@ -37,10 +33,8 @@ class itunes:
     
     def resolved(self, hosttarget, fullname, port, txtRecord):
         self.isresolved = True
-        self.query_sdRef = pybonjour.DNSServiceQueryRecord(
-                                        interfaceIndex = self.interfaceIndex,
-                                        fullname = hosttarget,
-                                        rrtype = pybonjour.kDNSServiceType_A,
+        self.query_sdRef = pybonjour.DNSServiceQueryRecord( interfaceIndex = self.interfaceIndex,
+                                        fullname = hosttarget, rrtype = pybonjour.kDNSServiceType_A,
                                         callBack = query_record_callback)
         self.fullname = fullname
         self.hosttarget = hosttarget
@@ -104,13 +98,15 @@ def browse_callback(sdRef, flags, interfaceIndex, errorCode, serviceName,
         it.closeConnexions()
         del itunesClients[serviceName]
 
+loop = True
     
 def populateITunes():
     browse_sdRef = pybonjour.DNSServiceBrowse(regtype = regtype, callBack = browse_callback)
+    loop = True
     
     try:
         try:
-            while True:
+            while loop:
 
                 timeout = None
                 socks = [browse_sdRef]
@@ -125,7 +121,7 @@ def populateITunes():
                 ready, w, e = select.select(socks, [], [], timeout)
                 
                 if len(ready) == 0:
-                    # Remove 
+                    # Remove timed out clients
                     for client in processing:
                         client.closeConnexions()
                         del itunesClients[client.serviceName]
@@ -138,10 +134,21 @@ def populateITunes():
     finally:
         browse_sdRef.close()
         for client in itunesClients.values(): client.closeConnexions()    
-    
+
+class browse(threading.Thread):
+    def __init__(self):
+        super(browse, self).__init__()
+        self.setDaemon(True)
+
+    def run(self):
+        populateITunes()
+
 
 if __name__ == "__main__":
-    populateITunes()
+    browse().start()
+    
+    
+#    populateITunes()
     
     
     

@@ -3,6 +3,7 @@
 # released gplv3 by jeffrey sharkey
 
 import sys, struct, re
+import response
 
 def format(c):
 	if ord(c) >= 128: return "(byte)0x%02x"%ord(c)
@@ -14,8 +15,10 @@ def read(queue, size):
 	del queue[0:size]
 	return pull
 
-group = ['casp', 'cmst','mlog','agal','mlcl','mshl','abro','mlit',
-	'abar','apso','caci','avdb','cmgt','aply','adbs','cmpa', 'mdcl', 'mupd']
+group = response.BRANCHES
+
+#['casp', 'cmst','mlog','agal','mlcl','mshl','abro','mlit',
+#	'abar','apso','caci','avdb','cmgt','aply','adbs','cmpa', 'mdcl', 'mupd', 'mstt', 'msrv']
 
 rebinary = re.compile('[^\x20-\x7e]')
 

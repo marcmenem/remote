@@ -10,14 +10,45 @@ import response
 
 import threading
 
+import ConfigParser
+
+config = ConfigParser.RawConfigParser()
+filename = 'remotecontrol.cfg'
+
+def writeConfig(id):
+    config.add_section('connexion')
+    config.set( itunes.serviceName, 'sessionid', id)
+    # Writing our configuration file to 'example.cfg'
+    with open(filename, 'wb') as configfile:
+        config.write(configfile)
+
+def readConfig():
+    config.read(filename)
+    return config.get('connexion', 'sessionid', 0) 
 
 
-class eventman(threading.Thread):
-    
+
+class daemonThread( threading.Thread ):
+    def __init__(self):
+        super(daemonThread, self).__init__()
+        self.setDaemon(False)
+
+class eventman(daemonThread):
     def run ( self ):
+        if not 'nextupdate' in dir(self.remote): self.remote.showStatus()
         st = self.remote.showStatus( self.remote.nextupdate )
         print "Update"
         self.run()
+
+class playlistman(daemonThread):
+    def run ( self ):
+        if not 'nextplaylistupdate' in dir(self.remote): self.remote.update()
+        st = self.remote.update( self.remote.nextplaylistupdate )
+        print "Update playlist"
+        self.run()        
+
+
+
         
 def _encode( values ):
     st = '&'.join([ str(k) + '=' + str(values[k]) for k in values ])
@@ -41,9 +72,9 @@ class results:
 
 
 class remote:
-    def __init__(self):
+    def __init__(self, ip, port):
         self.guid="0x0000000000000001"
-        self.service = 'http://192.168.1.8:3689'
+        self.service = 'http://' + ip + ':' + port
         self.sessionid = None
         
 
@@ -52,14 +83,14 @@ class remote:
         return self._operation( command, values, verbose)
         
         
-    def _operation( self, command, values, verbose=True):
-        if self.sessionid is None:
-            self.pairing()
-    
-        values['session-id'] = self.sessionid
+    def _operation( self, command, values, verbose=True, sessionid = True):
+        if sessionid:
+            if self.sessionid is None:
+                self.pairing()
+            values['session-id'] = self.sessionid
         
         url = command
-        url += "?" + _encode(values)
+        if len(values): url += "?" + _encode(values)
         if verbose: print url
         
         headers = { 'Viewer-Only-Client': '1'  }
@@ -163,22 +194,7 @@ class remote:
         resp = self._operation( command, values, False )
         return resp['abro']
        
-        
-    """
-    http.request.uri == "/databases/41/containers/28402/items?
-    session-id=1131893462&
-    meta=dmap.itemname,dmap.itemid,daap.songartist,daap.songalbum,
-    dmap.containeritemid,com.apple.itunes.has-video&
-    type=music&
-    sort=name&
-    include-sort-headers=1&
-    query=(('com.apple.itunes.mediakind:2','com.apple.itunes.mediakind:6',
-    'com.apple.itunes.mediakind:36','com.apple.itunes.mediakind:32',
-    'com.apple.itunes.mediakind:64','com.apple.itunes.mediakind:2097154',
-    'com.apple.itunes.mediakind:2097158')+'dmap.itemname:*Vam*')&
-    index=0-7"
-    
-    """
+
     def _query_songs(self, q):
         command = '%s/databases/%d/containers/%d/items' % (self.service, 
                                                     self.databaseid, self.musicid)
@@ -261,6 +277,30 @@ class remote:
         self.nextupdate = status.revisionnumber
         return status
         
+    def clearPlaylist( self ):
+        return self._ctloperation('cue', {'command': 'clear'})
+        
+    def playArtist( self, artist, index=0):
+        values = {
+            'command': 'play', 
+            'query': "'daap.songartist:" + artist + "'",
+            'index': index,
+            'sort': 'album',
+            }
+        return self._ctloperation('cue', values)
+        
+    def playAlbumId(albumid, index=0):
+        values = {
+            'command': 'play', 
+            'query': "'daap.songalbumid:" + albumid + "'",
+            'index': index,
+            'sort': 'album',
+            }
+        return self._ctloperation('cue', values)
+        
+        
+        
+        
     def seek( self, time ):
         return self.setproperty('dacp.playingtime', time)
         
@@ -278,34 +318,59 @@ class remote:
         
     def setvolume(self, value ):
         return self.setproperty('dmcp.volume', value)    
-            
-    def serverinfo(self, prop ):
+        
+    # Blocks until playlist is updated
+    def update(self, rev=None):
         print "server-info >>> "
-        values = {prop: val }
-        command = '%s/server-info' % (self.service)
-        return self._operation(command, prop)    
+        url = '%s/update' % (self.service)
+        if rev: 
+            values = {'revision-number':rev}
+        else:
+            values = {}
+        up = self._operation(url, values)
+        self.nextplaylistupdate = up['mupd']['musr']
+        return up
         
     def serverinfo(self):
         print "server-info >>> "
-        url = '%s/update' % (self.service)
-        return self._operation(url, {})
+        url = '%s/server-info' % (self.service)
+        return self._operation(url, {}, sessionid=False)
         
-    def shuffle(self):
-        return self.setproperty( 'dacp.shufflestate', '1')
+    def shuffle(self, state):
+        return self.setproperty( 'dacp.shufflestate', state)
         
-    def repeat(self):
-        return self.setproperty( 'dacp.repeatstate', '2')
+    def repeat(self, state):
+        return self.setproperty( 'dacp.repeatstate', state)
         
     def updatecallback(self):
+        print "Launching UI thread"
         event = eventman()
         event.remote = self
         event.start()
-        print "Launched thread"
 
+        print "Launching playlist thread"
+        pl = playlistman()
+        pl.remote = self
+        pl.start()
+
+
+
+"GET /ctrl-int/1/nowplayingartwork?mw=320&mh=320&session-id=284830210"
+
+"""
+/ctrl-int/1/cue?command=play&
+    query=(('com.apple.itunes.mediakind:1','com.apple.itunes.mediakind:4',
+    'com.apple.itunes.mediakind:8','com.apple.itunes.mediakind:2097152',
+    'com.apple.itunes.mediakind:2097156')+'dmap.itemname:*Dido*')&
+    index=1&sort=name&session-id=284830210
+
+/databases/41/items/10391/extra_data/artwork?session-id=1131893462&mw=55&mh=55
+
+"""
 
 
 if __name__ == "__main__":
-    conn = remote()
+    conn = remote('192.168.1.8', '3689')
 
 
 
