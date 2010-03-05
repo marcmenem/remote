@@ -56,7 +56,7 @@ class status:
             print "Album:\t", self.album
             print "Artist:\t", self.artist
             print "Track:\t", self.track
-            print "Genre:\t:", self.genre
+            print "Genre:\t", self.genre
             print "Playing:\t", self.playstatus
             if self.playstatus >2:
                 print "Time:\t", self.time

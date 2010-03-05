@@ -23,8 +23,13 @@ http://daap.sourceforge.net/docs/index.html
 
 """
 
+
+
 import urllib
 import urllib2
+from urllib2 import HTTPError
+
+
 import struct
 import sys, re
 
@@ -57,17 +62,21 @@ def readConfig():
 class daemonThread( threading.Thread ):
     def __init__(self):
         super(daemonThread, self).__init__()
-        self.setDaemon(False)
+        self.setDaemon(True)
 
 class eventman(daemonThread):
     def run ( self ):
         if not hasattr(self.remote,'nextupdate'): 
-            self.remote.showStatus()
-            self.remote.artwork = self.remote.nowplayingartwork()
+            st = self.remote.showStatus()
+            if st.playstatus > 2:
+                self.remote.artwork = self.remote.nowplayingartwork()
         st = self.remote.showStatus( self.remote.nextupdate )
+        self.remote.status = st
         print "Update"
-        self.remote.artwork = self.remote.nowplayingartwork()
-        
+        if st.playstatus > 2:
+            self.remote.artwork = self.remote.nowplayingartwork()
+        else:
+            self.remote.artwork = None
         self.run()
 
 class playlistman(daemonThread):
@@ -92,13 +101,13 @@ class results:
     def show(self):
         print "Albums  --+", self.albums.totnb
         for n in self.albums.list:
-            print "\t", n.name
+            print "\t", n.name, n.id
         print "Artists --+", self.artists.totnb
         for n in self.artists.list:
             print "\t", n
         print "Songs   --+", self.tracks.totnb
         for n in self.tracks.list:
-            print "\t", n.name
+            print "\t", n.name, n.id
 
 
 class remote:
@@ -140,8 +149,10 @@ class remote:
                 return resp.resp
             else:
                 return out
+        except HTTPError, e:
+            print "HTTPError", e
         except:
-            print "CAUGHT ERROR"
+            print "Unexpected error:", sys.exc_info()[0]
             return None
     
     def databases(self):
@@ -196,17 +207,15 @@ class remote:
         self.sessionid = None
         return lo
     
-    def _query_groups(self, q):
+    def _query_groups(self, q=None, startid=0, endid=7 verbose=False):
         command = '%s/databases/%d/groups' % (self.service, self.databaseid)
-        mediakind = [1,4,8,2097152,2097156]
-        qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
-        query="((" + qt + ")+'daap.songalbum:*" + q + "*'+'daap.songalbum!:')"
         
         meta = [
             'dmap.itemname',
             'dmap.itemid', 
             'dmap.persistentid', 
-            'daap.songartist', 
+            'daap.songartist',
+            
             ]        
 
         values = { 
@@ -215,39 +224,61 @@ class remote:
             'group-type': 'albums',
             "sort": "album",
             "include-sort-headers": '1',
-            "index": ("%d-%d" % (0,7)),
-            "query": query
+            "index": ("%d-%d" % (startid,endid)),
             }
-
-        resp = self._operation( command, values, False )
+        if q:
+            mediakind = [1,4,8,2097152,2097156]
+            qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+            query="((" + qt + ")+'daap.songalbum:*" + q + "*'+'daap.songalbum!:')"
+            values['query'] = query
+        
+        resp = self._operation( command, values, verbose=verbose )
         return resp['agal']
 
     
-    def _query_artists(self, q):
+    def _query_artists(self, q=None, startid=0, endid=7):
         command = '%s/databases/%d/browse/artists' % (self.service, self.databaseid)
-        mediakind = [1,4,8,2097152,2097156]
-        qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
-        query="(" + qt + ")+'daap.songartist:*" + q + "*'+'daap.songartist!:'"
         
         values = { 
             "include-sort-headers": '1',
-            "index": ("%d-%d" % (0,7)),
-            "filter": query
+            "index": ("%d-%d" % (startid,endid))
         }
+
+        if q:
+            mediakind = [1,4,8,2097152,2097156]
+            qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+            query="(" + qt + ")+'daap.songartist:*" + q + "*'+'daap.songartist!:'"
+            values['filter'] = query        
 
         resp = self._operation( command, values, False )
         return resp['abro']
        
 
-    def _query_songs(self, q):
+    def getallitems(self, index='0-100'):
+        meta = [
+            'dmap.itemname', 
+            'dmap.itemcount', 
+            'dmap.itemid', 
+            'dmap.persistentid', 
+            'daap.baseplaylist', 
+            'com.apple.itunes.special-playlist', 
+            'dmap.parentcontainerid', 
+            'dmap.itemname',
+            'dmap.itemid', 
+            'dmap.songartist',
+            'dmap.songalbum', 
+            'daap.containeritemid'
+            ]        
+        values = { 'meta': ','.join(meta), 
+                   'index': index}
+        
+        return self._operation('%s/databases/%s/items' % (self.service, self.databaseid), values)
+        
+        
+    def _query_songs(self, q=None, startid=0, endid=7):
         command = '%s/databases/%d/containers/%d/items' % (self.service, 
                                                     self.databaseid, self.musicid)
-        #mediakind = [2,6,36,32,64,2097154,2097158]   # films & podcasts
-        mediakind = [1,4,8,2097152,2097156]
         
-        qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
-        query="((" + qt + ")+'dmap.itemname:*" + q + "*')"
-
         meta = [
             'dmap.itemname',
             'dmap.itemid', 
@@ -262,9 +293,16 @@ class remote:
             "type": 'music',
             "sort": "name",
             "include-sort-headers": '1',
-            "index": ("%d-%d" % (0,7)),
-            "query": query
+            "index": ("%d-%d" % (startid,endid)),
             }
+
+        if q:
+            #mediakind = [2,6,36,32,64,2097154,2097158]   # films & podcasts
+            mediakind = [1,4,8,2097152,2097156]
+            
+            qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+            query="((" + qt + ")+'dmap.itemname:*" + q + "*')"
+            values['query'] = query
         
         resp = self._operation( command, values, False )
         return resp['apso']
@@ -333,7 +371,7 @@ class remote:
             }
         return self._ctloperation('cue', values)
         
-    def playAlbumId(albumid, index=0):
+    def playAlbumId(self, albumid, index=0):
         values = {
             'command': 'play', 
             'query': "'daap.songalbumid:" + albumid + "'",
@@ -342,6 +380,21 @@ class remote:
             }
         return self._ctloperation('cue', values)
         
+    def playSong(self, song, index=0):
+        mediakind = [1,4,8,2097152,2097156]
+        
+        qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+        query="((" + qt + ")+'dmap.itemname:*" + song + "*')"
+
+        values = { 
+            'command': 'play', 
+            "sort": "name",
+            "include-sort-headers": '1',
+            'index': index,
+            "query": query
+            }
+    
+        return self._ctloperation('cue', values)
         
         
         
@@ -446,24 +499,19 @@ class remote:
             print "Saved to file", filename
         return data
 
+    def getartwork(self, itemid, savetofile=True):
+        url = '%s/databases/%s/items/%s/extra_data/artwork' % (self.service, self.databaseid, itemid)
+        values = {'mw': '55', 'mh': '55'}
+        data = self._operation(url, values, verbose=True)
+        if savetofile and (len(data) > 0):
+            filename = 'extra.png'
+            extra_png = open(filename, 'w')
+            extra_png.write(data)
+            extra_png.close()
+            print "Saved to file", filename
+        return data
 
-        
-    def playSong(self, song, index=0):
-        mediakind = [1,4,8,2097152,2097156]
-        
-        qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
-        query="((" + qt + ")+'dmap.itemname:*" + song + "*')"
 
-        values = { 
-            'command': 'play', 
-            "sort": "name",
-            "include-sort-headers": '1',
-            'index': index,
-            "query": query
-            }
-    
-        return self._ctloperation('cue', values)
-        
         
 
 """
@@ -491,6 +539,7 @@ if __name__ == "__main__":
                 dbn = si['msrv']['minm']
                 if dbn == requiredDB:
                     conn = conn2
+                    conn.updatecallback()
                 else:
                     print "Skipping", dbn
         else:

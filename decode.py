@@ -5,6 +5,8 @@
 import sys, struct, re
 import response
 
+from daap_data import *
+
 def format(c):
 	if ord(c) >= 128: return "(byte)0x%02x"%ord(c)
 	else: return "0x%02x"%ord(c)
@@ -68,7 +70,10 @@ def decode(raw, handle, indent):
 		except:
 			nice = 'ERROR'
 		
-		print '\t' * indent, ptype.ljust(6), str(plen).ljust(6), nice
+		key = ptype
+		if key in dmapCodeTypes:
+		    key += " (%s)" % dmapCodeTypes[key][0]
+		print '\t' * indent, key.ljust(30), str(plen).ljust(6), nice
 
 
 if __name__ == "__main__":
