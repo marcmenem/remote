@@ -71,7 +71,6 @@ class eventman(daemonThread):
             if st.playstatus > 2:
                 self.remote.artwork = self.remote.nowplayingartwork()
         st = self.remote.showStatus( self.remote.nextupdate )
-        self.remote.status = st
         print "Update"
         if st.playstatus > 2:
             self.remote.artwork = self.remote.nowplayingartwork()
@@ -254,7 +253,21 @@ class remote:
         return resp['abro']
        
         
-    def _query_songs(self, q=None, startid=0, nbitem=8, containerid=None, verbose=False):
+    """
+http.request.uri == 
+"/databases/43/containers/28764/items?session-id=1248913784
+&meta=dmap.itemname,dmap.itemid,daap.songartist,daap.songalbum,
+dmap.containeritemid,com.apple.itunes.has-video,daap.songuserrating,
+daap.songtime&type=music&sort=album&query='daap.songalbumid:16163238975009571254'"
+       
+http.request.uri == "/databases/43/containers/28764/items?session-id=1093637321&
+meta=dmap.itemname,dmap.itemid,daap.songartist,daap.songalbum,dmap.containeritemid,
+com.apple.itunes.has-video,daap.songuserrating,daap.songtime&type=music&sort=album&
+query='daap.songalbumid:14279550205875584078'"
+       
+    """
+    
+    def _query_songs(self, q=None, startid=0, nbitem=8, containerid=None, verbose=False, albumid=None):
         if not containerid: containerid = self.musicid
         command = '%s/databases/%d/containers/%d/items' % (self.service, self.databaseid, containerid)
         
@@ -270,7 +283,6 @@ class remote:
         values = { 
             "meta": ','.join(meta),
             "type": 'music',
-            "sort": "name",
             "include-sort-headers": '1',
             "index": ("%d-%d" % (startid, nbitem - startid - 1)),
             }
@@ -282,7 +294,12 @@ class remote:
             qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
             query="((" + qt + ")+'dmap.itemname:*" + q + "*')"
             values['query'] = query
-        
+            values["sort"] = "name"
+        elif albumid:
+            query="'daap.sonalbumid:" + albumid + "'"
+            values['query'] = query
+            values["sort"] = "album"
+            
         resp = self._operation( command, values, verbose=verbose )
         return resp['apso']
 
@@ -336,12 +353,14 @@ class remote:
         status = status['cmst']
         status.show()
         self.nextupdate = status.revisionnumber
+        self.status = status
         return status
         
     def clearPlaylist( self ):
         return self._ctloperation('cue', {'command': 'clear'})
         
-    def playArtist( self, artist, index=0):
+    def playArtist( self, artist, index=0, clear = True):
+        if clear: self.clearPlaylist()
         values = {
             'command': 'play', 
             'query': "'daap.songartist:" + artist + "'",
@@ -350,16 +369,44 @@ class remote:
             }
         return self._ctloperation('cue', values)
         
-    def playAlbumId(self, albumid, index=0):
+    
+    
+    def playAlbum(self, album, index=0, clear = True):
+        if clear: self.clearPlaylist()
+        mediakind = [1,4,8,2097152,2097156]
+        
+        qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+        query="((" + qt + ")+'daap.songalbum:*" + album + "*'" + ''+ ")"
+
+        
         values = {
             'command': 'play', 
-            'query': "'daap.songalbumid:" + albumid + "'",
+            'query': query,
             'index': index,
-            'sort': 'album',
+            'sort': 'album'
             }
         return self._ctloperation('cue', values)
         
-    def playSong(self, song, index=0):
+        
+    def playAlbumId(self, albumid, index=0, clear = True):
+        if clear: self.clearPlaylist()
+        mediakind = [1,4,8,2097152,2097156]
+        
+        qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
+        query="((" + qt + ")+'daap.songalbumid:" + albumid + "'" + ''+ ")"
+
+        
+        values = {
+            'command': 'play', 
+            'query': query,
+            'index': index,
+            'sort': 'album'
+            }
+        return self._ctloperation('cue', values)
+        
+        
+    def playSong(self, song, index=0, clear = True):
+        if clear: self.clearPlaylist()
         mediakind = [1,4,8,2097152,2097156]
         
         qt = ",".join( [ "'com.apple.itunes.mediakind:" + str(mk) + "'" for mk in mediakind])
@@ -478,9 +525,21 @@ class remote:
             print "Saved to file", filename
         return data
 
-    def getartwork(self, itemid, savetofile=True):
+    def getsongartwork(self, itemid, savetofile=True):
         url = '%s/databases/%s/items/%s/extra_data/artwork' % (self.service, self.databaseid, itemid)
         values = {'mw': '55', 'mh': '55'}
+        data = self._operation(url, values, verbose=True)
+        if savetofile and (len(data) > 0):
+            filename = 'extra.png'
+            extra_png = open(filename, 'w')
+            extra_png.write(data)
+            extra_png.close()
+            print "Saved to file", filename
+        return data
+
+    def getalbumartwork(self, itemid, savetofile=True):
+        url = '%s/databases/%s/groups/%s/extra_data/artwork' % (self.service, self.databaseid, itemid)
+        values = {'mw': '55', 'mh': '55', 'group-type': 'albums'}
         data = self._operation(url, values, verbose=True)
         if savetofile and (len(data) > 0):
             filename = 'extra.png'
