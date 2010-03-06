@@ -4,6 +4,7 @@
 import pygtk
 pygtk.require( "2.0" )
 import gtk
+import gtk.gdk
 import gobject
 
 import remotecontrol
@@ -14,17 +15,25 @@ class searcher(threading.Thread):
     def __init__(self, win):
         super(searcher, self).__init__()
         self.win = win
+        #self.working = False
         
     def run(self):
+        #while self.working:
+        #    time.sleep(0.1)
+
         print "Searching", self.value
+        #self.working = True
         res = self.win.remote.query(self.value)
+        #self.working = False
         gobject.idle_add(self.win.reset_search, res)
+
 
 class listener(threading.Thread):
     def __init__(self, win):
         super(listener, self).__init__()
         self.win = win
         self.do = True
+        self.setDaemon(1) # avoid lock on exit
         
     def run(self):
         while self.do:
@@ -41,9 +50,9 @@ def timerepr(t1):
 class Remote:
     def gtk_main_quit( self, window ):
         gtk.main_quit()
-
+        
     def searchchanged(self, window):
-        s = searcher(self)
+        s = self.searcher
         s.value = self.entry.get_text()
         s.start()
 
@@ -79,9 +88,9 @@ class Remote:
        
             
         
-    def add_results(self, category, results):
-        #FIXME
-        print category, results
+    #def add_results(self, category, results):
+    #    #FIXME
+    #    print category, results
         
         
     def volumerelease(self, window):
@@ -111,8 +120,12 @@ class Remote:
         # Run dialog
         response = self.quit_dialog.run()
         self.quit_dialog.hide()
+        
+        if response != 1:
+            self.ui_updater.do = False
+            return True
 
-        return response != 1
+        return False 
 
     def cb_show_about( self, button ):
         # Run dialog
@@ -129,27 +142,54 @@ class Remote:
             
             self.playstatus = status.playstatus
             if status.playstatus > 2:
+                if hasattr(self.remote,'artwork') and self.remote.artwork:
+                    print "Updating artwork"
+                    pb = gtk.gdk.PixbufLoader()
+                    pb.write(self.remote.artwork)
+                    pb.close()
+                    self.image.set_from_pixbuf(pb.get_pixbuf())
+                    
+                else:
+                    print "Missing artwork"
+                
             	self.totaltime = status.totaltime
             	self.timepos = status.time
                 self.position.set_upper(self.totaltime)
                 self.update_time( self )
-        	
+            else:
+                self.time.set_label(timerepr( 0 ))
+                self.timeremain.set_label(timerepr( 0 ))
+             
+        else:
+            self.track.set_label("")
+            self.artist.set_label("")
+            #self.album.set_label("")
+            #self.genre.set_label("")
+        
+            self.time.set_label(timerepr( 0 ))
+            self.timeremain.set_label(timerepr( 0 ))
+             
         
     def update_time(self, obj):
+        self.waiting = False
+        
         if self.timepos < 0:
         	self.update_status()
-        else:        
+        else:
             self.time.set_label(timerepr( self.totaltime - self.timepos ))
             self.timeremain.set_label(timerepr( self.totaltime ))
                 
             self.position.set_value(self.totaltime - self.timepos)
-                
-            if self.playstatus == 4:
+            
+            if self.playstatus == 4 and not self.waiting:
                 self.timepos -= 250
                 self.timer = gobject.timeout_add( 250, self.update_time, self)
-        
+                self.waiting = True 
+            else:
+                print "Not scheduling timer"
 
     def update_speakers(self):
+        print "Speakers"
         speakers = self.remote.getspeakers()
         try:
             while self.speakerslist.remove(self.speakerslist.get_iter_first()):
@@ -196,15 +236,20 @@ class Remote:
         self.speakerslist = builder.get_object("liststore2")
         self.entry = builder.get_object("entry1")
         
+        self.image = builder.get_object("image1")
+                
         builder.connect_signals( self )
 
-        self.remote = remotecontrol.remote()
+        self.remote = remotecontrol.connect(update = False)
         self.update_speakers()
         self.update_status()
         self.update_playlists()
+        
+        # thread helpers
         self.ui_updater = listener(self)
         self.ui_updater.start()
         
+        self.searcher = searcher(self)
         
 if __name__ == "__main__":
     win = Remote()

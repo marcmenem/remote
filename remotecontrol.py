@@ -25,23 +25,17 @@ http://daap.sourceforge.net/docs/index.html
 
 
 
-import urllib
-import urllib2
+import urllib, urllib2
 from urllib2 import HTTPError
 
 
-import struct
-import sys, re
-
+import struct, sys, re, time, threading
+import StringIO, gzip
+                
 import decode
 import response
 
-import time
-import threading
-
 import ConfigParser
-
-import connect
 
 config = ConfigParser.RawConfigParser()
 filename = 'remotecontrol.cfg'
@@ -68,14 +62,9 @@ class eventman(daemonThread):
     def run ( self ):
         if not hasattr(self.remote,'nextupdate'): 
             st = self.remote.showStatus()
-            if st.playstatus > 2:
-                self.remote.artwork = self.remote.nowplayingartwork()
         st = self.remote.showStatus( self.remote.nextupdate )
-        print "Update"
-        if st.playstatus > 2:
-            self.remote.artwork = self.remote.nowplayingartwork()
-        else:
-            self.remote.artwork = None
+        if not st:
+            time.sleep(1)
         self.run()
 
 class playlistman(daemonThread):
@@ -132,14 +121,27 @@ class remote:
         if len(values): url += "?" + _encode(values)
         if verbose: print url
         
-        headers = { 'Viewer-Only-Client': '1'  }
+        headers = { 
+            'Viewer-Only-Client': '1', 
+            'Connection':'keep-alive', 
+            'Accept-Encoding': 'gzip'} 
+        
+        #    'Accept-Encoding': 'identity', 
+        #    'User-agent':'Python-urllib/2.6' } 
+        #    'Connection':'close' } 
+        
         request = urllib2.Request( url, None, headers )
         
         try:
             resp = urllib2.urlopen(request)
             headers = resp.headers.dict
-            
-            out = resp.read()
+        
+            if 'content-encoding' in headers and headers['content-encoding'] == 'gzip':
+                compressedstream = StringIO.StringIO(resp.read())
+                gzipper = gzip.GzipFile(fileobj=compressedstream)
+                out = gzipper.read()                 
+            else:
+                out = resp.read()
             if headers['content-type'] != 'image/png':
                 
                 if verbose: self._decode2( out )
@@ -149,7 +151,10 @@ class remote:
             else:
                 return out
         except HTTPError, e:
-            print "HTTPError", e
+            print "HTTPError while running query"
+            print request.get_full_url()
+            print request.headers
+            print e
         except:
             print "Unexpected error:", sys.exc_info()[0]
             return None
@@ -296,7 +301,7 @@ query='daap.songalbumid:14279550205875584078'"
             values['query'] = query
             values["sort"] = "name"
         elif albumid:
-            query="'daap.sonalbumid:" + albumid + "'"
+            query="'daap.songalbumid:" + albumid + "'"
             values['query'] = query
             values["sort"] = "album"
             
@@ -350,11 +355,17 @@ query='daap.songalbumid:14279550205875584078'"
     def showStatus(self, revisionnumber='1', verbose=False):
         values = {'revision-number': revisionnumber }
         status = self._ctloperation('playstatusupdate', values, verbose)    
-        status = status['cmst']
-        status.show()
-        self.nextupdate = status.revisionnumber
-        self.status = status
+        if status:
+            status = status['cmst']
+            status.show()
+            self.nextupdate = status.revisionnumber
+            self.status = status
+            if status.playstatus > 2:
+                self.artwork = self.nowplayingartwork()
+            else:
+                self.artwork = None
         return status
+    
         
     def clearPlaylist( self ):
         return self._ctloperation('cue', {'command': 'clear'})
@@ -563,25 +574,38 @@ query='daap.songalbumid:14279550205875584078'"
 
 """
 
-
-if __name__ == "__main__":
+def connect(update = True):
     requiredDB = 'Biblioth\xc3\xa8que de \xc2\xab\xc2\xa0Marc Menem\xc2\xa0\xc2\xbb'
 
-    connect.browse().start()
-    conn = None
-    while not conn:
-        if len(connect.itunesClients) > 0:
-            for it in connect.itunesClients.values():
-                conn2 = remote(it.ip, it.port)
-                si = conn2.serverinfo()
-                dbn = si['msrv']['minm']
-                if dbn == requiredDB:
-                    conn = conn2
-                    conn.updatecallback()
-                else:
-                    print "Skipping", dbn
-        else:
-            time.sleep(0.5)
+    if sys.platform == 'darwin':
+        import connect
+
+        connect.browse().start()
+        conn = None
+        while not conn:
+            if len(connect.itunesClients) > 0:
+                for it in connect.itunesClients.values():
+                    conn2 = remote(it.ip, it.port)
+                    si = conn2.serverinfo()
+                    dbn = si['msrv']['minm']
+                    if dbn == requiredDB:
+                        conn = conn2
+                        conn.showStatus()
+                        if update: conn.updatecallback()
+                    else:
+                        print "Skipping", dbn
+            else:
+                time.sleep(0.5)
+    else:
+       conn2 = remote('192.168.1.8', 3689)
+       si = conn2.serverinfo()
+       dbn = si['msrv']['minm']
+       if dbn == requiredDB:
+            conn = conn2
+            conn.showStatus()
+            if update: conn.updatecallback()
+       else:
+            print "iTunes not started ?"     
 
     import atexit
 
@@ -590,6 +614,11 @@ if __name__ == "__main__":
         print "Logging out"
         conn.logout()
 
+    return conn
+
+if __name__ == "__main__":
+    
+    conn = connect()
 
 
 

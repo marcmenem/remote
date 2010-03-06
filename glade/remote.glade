@@ -108,13 +108,6 @@
       <!-- column-name Album -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">testtrack</col>
-        <col id="1" translatable="yes">testartist</col>
-        <col id="2" translatable="yes">testalbum</col>
-      </row>
-    </data>
   </object>
   <object class="GtkTreeStore" id="treestore1">
     <columns>
@@ -149,7 +142,7 @@
             <child>
               <object class="GtkImage" id="image1">
                 <property name="visible">True</property>
-                <property name="pixbuf">test.png</property>
+                <property name="stock">gtk-missing-image</property>
               </object>
               <packing>
                 <property name="position">0</property>
@@ -202,12 +195,14 @@
                 </child>
                 <child>
                   <object class="GtkVolumeButton" id="volumebutton1">
-                    <property name="label" translatable="yes">button</property>
+                    <property name="label">gnome-stock-volume</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="no_show_all">True</property>
                     <property name="has_tooltip">True</property>
                     <property name="relief">none</property>
+                    <property name="use_stock">True</property>
                     <property name="focus_on_click">False</property>
                     <property name="orientation">vertical</property>
                     <property name="icons">audio-volume-muted
@@ -231,7 +226,6 @@ audio-volume-medium</property>
                 <child>
                   <object class="GtkLabel" id="Artist">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;label&lt;/b&gt;</property>
                   </object>
                   <packing>
                     <property name="position">0</property>
@@ -240,7 +234,6 @@ audio-volume-medium</property>
                 <child>
                   <object class="GtkLabel" id="Track">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">label</property>
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -257,7 +250,6 @@ audio-volume-medium</property>
                 <child>
                   <object class="GtkLabel" id="time">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">label</property>
                   </object>
                   <packing>
                     <property name="position">0</property>
@@ -280,7 +272,6 @@ audio-volume-medium</property>
                 <child>
                   <object class="GtkLabel" id="timeremain">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">label</property>
                   </object>
                   <packing>
                     <property name="position">2</property>
@@ -325,7 +316,7 @@ audio-volume-medium</property>
             <child>
               <object class="GtkLabel" id="label8">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">label</property>
+                <property name="label" translatable="yes">Search terms</property>
               </object>
               <packing>
                 <property name="expand">False</property>
