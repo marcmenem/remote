@@ -1,0 +1,19 @@
+DACP Remote Control
+===================
+
+
+The Digital Audio Control Protocol (DACP) was recently introduced by Apple, and is built into all
+recent iTunes versions. DACP is the protocol used by the Remote app on the iPhone/iPod Touch to 
+remote control your desktop or laptop iTunes player.
+
+DACP is similar to the well-known DAAP, using Bonjour MDNS to find libraries, then using HTTP 
+requests with binary responses to transfer data. After a few days in front of packet dumps, I have
+most of DACP decoded.
+
+With the protocol now reverse engineered, I wrote an Android client in about a week. Now you can
+remote control your iTunes from your new Android phone when it arrives later this year. This works
+out of the box without installing any extra software on your PC or Mac. Here's a quick video in 
+action on the emulator:
+
+If you're interested in jumping right in, here's an APK ready to install. Also, the full source has 
+been released under a GPLv3 license, and you can grab it from Subversion on Google Code: 
