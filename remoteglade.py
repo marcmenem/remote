@@ -52,7 +52,7 @@ class Remote:
         gtk.main_quit()
         
     def searchchanged(self, window):
-        s = self.searcher
+        s = searcher(self)
         s.value = self.entry.get_text()
         s.start()
 
@@ -249,7 +249,7 @@ class Remote:
         self.ui_updater = listener(self)
         self.ui_updater.start()
         
-        self.searcher = searcher(self)
+        # self.searcher = searcher(self)
         
 if __name__ == "__main__":
     win = Remote()
