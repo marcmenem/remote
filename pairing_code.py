@@ -221,6 +221,8 @@ def itunes_pairingcode( passcode, pair ):
     c += 0x98badcfe
     d += 0x10325476
     
+    print ">>>", hex(a),hex(b),hex(c),hex(d)
+    
     # switch to little endian
     a = ((a&0xff000000)>>24) + ((a&0xff0000)>>8) + ((a&0xff00)<<8) + ((a&0xff)<<24)
     b = ((b&0xff000000)>>24) + ((b&0xff0000)>>8) + ((b&0xff00)<<8) + ((b&0xff)<<24)
@@ -228,7 +230,35 @@ def itunes_pairingcode( passcode, pair ):
     d = ((d&0xff000000)>>24) + ((d&0xff0000)>>8) + ((d&0xff00)<<8) + ((d&0xff)<<24)
     
     # write the pairing id and return it
+    
+    print ">>>", hex(a),hex(b),hex(c),hex(d)
+    
     return struct.pack("IIII", a, b, c, d )
 
 
+
+
+if __name__ == "__main__":
+    print "Hello world"
+    
+    print "Expecting 690E6FF61E0D7C747654A42AED17047D"
+    
+    name    = '0000000000000001'
+    passcode = '1234'
+    
+    name2   = '\x00' * 15 + '\x01'
+    passcode2 = '\x01\x02\x03\x04'
+
+    expected = itunes_pairingcode(passcode, name)
+    print "Expected",  hex(struct.unpack('Q',expected[0:8])[0]),  hex(struct.unpack('Q',expected[8:16])[0])
+    
+    print 
+    print
+    print
+    print
+    expected = itunes_pairingcode(passcode2, name2)
+    print "Expected",  hex(struct.unpack('Q',expected[0:8])[0]),  hex(struct.unpack('Q',expected[8:16])[0])
+    
+    
+    
 
