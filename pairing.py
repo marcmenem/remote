@@ -8,6 +8,9 @@ import sys
 import pybonjour
 import datetime
 
+
+__macos__ = sys.platform == 'darwin'
+
 def send(clientsocket): 
     rcv = clientsocket.recv(1024)
     """
@@ -26,9 +29,12 @@ def send(clientsocket):
         n = co.match(l)
         if m:
             useragent = m.group(1)
-        if n:
+            print "Request from", useragent
+    if n:
             pairingcode = n.group(1)
             servicename = n.group(2)
+            print "Pairing code", pairingcode, "service name", servicename
+    
     
     # any incoming requests are just pairing code related 
     # return our guid regardless of input 
@@ -84,28 +90,36 @@ txtrecord = pybonjour.TXTRecord(data)
 
 
 
-def register_services(port):
+
+
+def startserver(port):
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serversocket.bind((socket.gethostname(), port))
     serversocket.listen(5)
+    return serversocket
     
+def bonjoursocket(port):
     sdRef = pybonjour.DNSServiceRegister(name = name,
                                  regtype = regtype,
                                  port = port, txtRecord = txtrecord,
                                  callBack = register_callback)
-
     return serversocket, sdRef
 
 if __name__ == "__main__":
     poll_interval = 0.5
     
+
     try:
-        port    = 1024
+        port    = 10024
         connected = False
+        maxtries = 12
+        tried = 0
         
-        while not connected:
+        while not connected and tried < maxtries:
+            print "Creating server on port", port
+            tried += 1
             try:
-                serversocket, sdRef = register_services( port )
+                serversocket = startserver(port) 
                 connected = True
             except socket.error, e:
                 if e.errno == 48:
@@ -115,13 +129,28 @@ if __name__ == "__main__":
                     print "Unknown error"
                     raise
         
+        if __macos__:
+            print "Using pybonjour"
+            sdRef = bonjoursocket( port )
+            readfrom = [serversocket, sdRef]
+        else:
+            print "Using avahi",
+            import avahi
+            from ZeroconfService import ZeroconfService
+            service = ZeroconfService(name=name, port=port, stype=regtype, text=avahi.dict_to_txt_array(data))
+            service.publish()
+        
+            readfrom = [serversocket]
+            
+    
         while True:
-            ready_to_read, w, in_error = select.select([serversocket, sdRef], [], [], poll_interval)
+            ready_to_read, w, in_error = select.select(readfrom, [], [], poll_interval)
             
             if len(ready_to_read) > 0:
-                if sdRef in ready_to_read:
-                    pybonjour.DNSServiceProcessResult(sdRef)
+                print "Finally something to do"
                 
+                if __macos__ and (sdRef in ready_to_read):
+                    pybonjour.DNSServiceProcessResult(sdRef)
                 elif serversocket in ready_to_read:
                     (clientsocket, address) = serversocket.accept()
                     send(clientsocket)
@@ -129,6 +158,9 @@ if __name__ == "__main__":
                 else:
                     print ready_to_read
     finally:
-        sdRef.close()
+        if __macos__:
+            sdRef.close()
+        else:
+            service.unpublish()
         serversocket.close() 
     

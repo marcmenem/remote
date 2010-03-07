@@ -597,7 +597,7 @@ def connect(update = True):
             else:
                 time.sleep(0.5)
     else:
-       conn2 = remote('192.168.1.8', 3689)
+       conn2 = remote('192.168.0.11', 3689)
        si = conn2.serverinfo()
        dbn = si['msrv']['minm']
        if dbn == requiredDB:
