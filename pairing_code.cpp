@@ -183,6 +183,7 @@ int main(void)
 	
 	std::string passcode = "1234";
 	std::string pair = "0000000000000001";
+	// 690E6FF61E0D7C747654A42AED17047D
 	
 	std::cout << itunes_pairingcode(passcode,pair) << std::endl;
 	return 0;

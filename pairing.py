@@ -14,9 +14,6 @@ __macos__ = sys.platform == 'darwin'
 name    = '0000000000000001'
 passcode = '1234'
 
-name2   = '\x00' * 15 + '\x01'
-passcode2 = '\x01\x02\x03\x04'
-
 regtype = '_touch-remote._tcp'
 poll_interval = None
     
@@ -47,10 +44,7 @@ def serverConnexion(clientsocket):
             print "Pairing code", pairingcode, "service name", servicename
     
     expected = pairing_code.itunes_pairingcode(passcode, name)
-    print "Expected",  hex(struct.unpack('Q',expected[0:8])[0]),  hex(struct.unpack('Q',expected[8:16])[0])
-    
-    expected = pairing_code.itunes_pairingcode(passcode2, name2)
-    print "Expected",  hex(struct.unpack('Q',expected[0:8])[0]),  hex(struct.unpack('Q',expected[8:16])[0])
+    print "Expected", pairing_code.to_hex(expected)
     
     # any incoming requests are just pairing code related 
     # return our guid regardless of input 

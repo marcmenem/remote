@@ -51,6 +51,8 @@ With no further ado, here's the source.
 """
 
 import struct
+import string
+
 
 # Expected
 # input 0000000000000001 1234
@@ -58,24 +60,8 @@ import struct
 
 def itunes_pairingcode( passcode, pair ):
     # initialize the param array
-    """
-    char param[64]
-    ::memset( param, 0, 64 )
-    param[56] = '\xc0'
-    param[24] = '\x80'
 
-    // set the pair value
-    ::strncpy( param, pair.c_str(), 16 )
-    
-    // copy the pair code
-    ::strncpy( param+16, passcode.c_str(), 4 )
-    param[22] = param[19]
-    param[20] = param[18]
-    param[18] = param[17]
-    param[19] = param[17] = 0
-    """
     param  = pair[0:16]
-    #            16          17         18          19        20           21       22           23       
     param += passcode[0] + '\x00' + passcode[1] + '\x00' + passcode[2] + '\x00' + passcode[3] + '\x00'
     param += '\x80' + '\x00'*31 + '\xc0' + '\x00'*7
     
@@ -84,144 +70,276 @@ def itunes_pairingcode( passcode, pair ):
     c = 0x98badcfe
     d = 0x10325476
     
+    #pdb.set_trace()
+    
     a = ((b & c) | (~b & d)) + struct.unpack("I",param[0:4])[0] + a - 0x28955B88
+    a = a&0xffffffff
     a = ((a << 0x07) | (a >> 0x19)) + b
+    a = a&0xffffffff    
     d = ((a & b) | (~a & c)) + struct.unpack("I",param[4:8])[0] + d - 0x173848AA
+    d = d&0xffffffff
     d = ((d << 0x0c) | (d >> 0x14)) + a
+    d = d&0xffffffff
     c = ((d & a) | (~d & b)) + struct.unpack("I",param[8:12])[0] + c + 0x242070DB
+    c = c&0xffffffff
     c = ((c << 0x11) | (c >> 0x0f)) + d
+    c = c&0xffffffff
     b = ((c & d) | (~c & a)) + struct.unpack("I",param[12:16])[0] + b - 0x3E423112
+    b = b&0xffffffff
     b = ((b << 0x16) | (b >> 0x0a)) + c
+    b = b&0xffffffff
     a = ((b & c) | (~b & d)) + struct.unpack("I",param[16:20])[0] + a - 0x0A83F051
+    a = a&0xffffffff
     a = ((a << 0x07) | (a >> 0x19)) + b
+    a = a&0xffffffff
     d = ((a & b) | (~a & c)) + struct.unpack("I",param[20:24])[0] + d + 0x4787C62A
+    d = d&0xffffffff
     d = ((d << 0x0c) | (d >> 0x14)) + a
+    d = d&0xffffffff
     c = ((d & a) | (~d & b)) + struct.unpack("I",param[24:28])[0] + c - 0x57CFB9ED
+    c = c&0xffffffff
     c = ((c << 0x11) | (c >> 0x0f)) + d
+    c = c&0xffffffff
     b = ((c & d) | (~c & a)) + struct.unpack("I",param[28:32])[0] + b - 0x02B96AFF
+    b = b&0xffffffff
     b = ((b << 0x16) | (b >> 0x0a)) + c
+    b = b&0xffffffff
     a = ((b & c) | (~b & d)) + struct.unpack("I",param[32:36])[0] + a + 0x698098D8
+    a = a&0xffffffff
     a = ((a << 0x07) | (a >> 0x19)) + b
+    a = a&0xffffffff
     d = ((a & b) | (~a & c)) + struct.unpack("I",param[36:40])[0] + d - 0x74BB0851
+    d = d&0xffffffff
     d = ((d << 0x0c) | (d >> 0x14)) + a
+    d = d&0xffffffff
     c = ((d & a) | (~d & b)) + struct.unpack("I",param[40:44])[0] + c - 0x0000A44F
+    c = c&0xffffffff
     c = ((c << 0x11) | (c >> 0x0f)) + d
+    c = c&0xffffffff
     b = ((c & d) | (~c & a)) + struct.unpack("I",param[44:48])[0] + b - 0x76A32842
+    b = b&0xffffffff
     b = ((b << 0x16) | (b >> 0x0a)) + c
+    b = b&0xffffffff
     a = ((b & c) | (~b & d)) + struct.unpack("I",param[48:52])[0] + a + 0x6B901122
+    a = a&0xffffffff
     a = ((a << 0x07) | (a >> 0x19)) + b
+    a = a&0xffffffff
     d = ((a & b) | (~a & c)) + struct.unpack("I",param[52:56])[0] + d - 0x02678E6D
+    d = d&0xffffffff
     d = ((d << 0x0c) | (d >> 0x14)) + a
+    d = d&0xffffffff
     c = ((d & a) | (~d & b)) + struct.unpack("I",param[56:60])[0] + c - 0x5986BC72
+    c = c&0xffffffff
     c = ((c << 0x11) | (c >> 0x0f)) + d
+    c = c&0xffffffff
     b = ((c & d) | (~c & a)) + struct.unpack("I",param[60:64])[0] + b + 0x49B40821
+    b = b&0xffffffff
     b = ((b << 0x16) | (b >> 0x0a)) + c
+    b = b&0xffffffff
     
     a = ((b & d) | (~d & c)) + struct.unpack("I",param[4:8])[0] + a - 0x09E1DA9E
+    a = a&0xffffffff
     a = ((a << 0x05) | (a >> 0x1b)) + b
+    a = a&0xffffffff
     d = ((a & c) | (~c & b)) + struct.unpack("I",param[24:28])[0] + d - 0x3FBF4CC0
+    d = d&0xffffffff
     d = ((d << 0x09) | (d >> 0x17)) + a
+    d = d&0xffffffff
     c = ((d & b) | (~b & a)) + struct.unpack("I",param[44:48])[0] + c + 0x265E5A51
+    c = c&0xffffffff
     c = ((c << 0x0e) | (c >> 0x12)) + d
+    c = c&0xffffffff
     b = ((c & a) | (~a & d)) + struct.unpack("I",param[0:4])[0] + b - 0x16493856
+    b = b&0xffffffff
     b = ((b << 0x14) | (b >> 0x0c)) + c
+    b = b&0xffffffff
     a = ((b & d) | (~d & c)) + struct.unpack("I",param[20:24])[0] + a - 0x29D0EFA3
+    a = a&0xffffffff
     a = ((a << 0x05) | (a >> 0x1b)) + b
+    a = a&0xffffffff
     d = ((a & c) | (~c & b)) + struct.unpack("I",param[40:44])[0] + d + 0x02441453
+    d = d&0xffffffff
     d = ((d << 0x09) | (d >> 0x17)) + a
+    d = d&0xffffffff
     c = ((d & b) | (~b & a)) + struct.unpack("I",param[60:64])[0] + c - 0x275E197F
+    c = c&0xffffffff
     c = ((c << 0x0e) | (c >> 0x12)) + d
+    c = c&0xffffffff
     b = ((c & a) | (~a & d)) + struct.unpack("I",param[16:20])[0] + b - 0x182C0438
+    b = b&0xffffffff
     b = ((b << 0x14) | (b >> 0x0c)) + c
+    b = b&0xffffffff
     a = ((b & d) | (~d & c)) + struct.unpack("I",param[0x24:0x28])[0] + a + 0x21E1CDE6
+    a = a&0xffffffff
     a = ((a << 0x05) | (a >> 0x1b)) + b
+    a = a&0xffffffff
     d = ((a & c) | (~c & b)) + struct.unpack("I",param[0x38:60])[0] + d - 0x3CC8F82A
+    d = d&0xffffffff
     d = ((d << 0x09) | (d >> 0x17)) + a
+    d = d&0xffffffff
     c = ((d & b) | (~b & a)) + struct.unpack("I",param[0x0c:16])[0] + c - 0x0B2AF279
+    c = c&0xffffffff
     c = ((c << 0x0e) | (c >> 0x12)) + d
+    c = c&0xffffffff
     b = ((c & a) | (~a & d)) + struct.unpack("I",param[0x20:0x24])[0] + b + 0x455A14ED
+    b = b&0xffffffff
     b = ((b << 0x14) | (b >> 0x0c)) + c
+    b = b&0xffffffff
     a = ((b & d) | (~d & c)) + struct.unpack("I",param[0x34:0x38])[0] + a - 0x561C16FB
+    a = a&0xffffffff
     a = ((a << 0x05) | (a >> 0x1b)) + b
+    a = a&0xffffffff
     d = ((a & c) | (~c & b)) + struct.unpack("I",param[0x08:12])[0] + d - 0x03105C08
+    d = d&0xffffffff
     d = ((d << 0x09) | (d >> 0x17)) + a
+    d = d&0xffffffff
     c = ((d & b) | (~b & a)) + struct.unpack("I",param[0x1c:32])[0] + c + 0x676F02D9
+    c = c&0xffffffff
     c = ((c << 0x0e) | (c >> 0x12)) + d
+    c = c&0xffffffff
     b = ((c & a) | (~a & d)) + struct.unpack("I",param[0x30:0x34])[0] + b - 0x72D5B376
+    b = b&0xffffffff
     b = ((b << 0x14) | (b >> 0x0c)) + c
+    b = b&0xffffffff
     
     a = (b ^ c ^ d) + struct.unpack("I",param[0x14:0x18])[0] + a - 0x0005C6BE
+    a = a&0xffffffff
     a = ((a << 0x04) | (a >> 0x1c)) + b
+    a = a&0xffffffff
     d = (a ^ b ^ c) + struct.unpack("I",param[0x20:0x24])[0] + d - 0x788E097F
+    d = d&0xffffffff
     d = ((d << 0x0b) | (d >> 0x15)) + a
+    d = d&0xffffffff
     c = (d ^ a ^ b) + struct.unpack("I",param[0x2c:48])[0] + c + 0x6D9D6122
+    c = c&0xffffffff
     c = ((c << 0x10) | (c >> 0x10)) + d
+    c = c&0xffffffff
     b = (c ^ d ^ a) + struct.unpack("I",param[0x38:60])[0] + b - 0x021AC7F4
+    b = b&0xffffffff
     b = ((b << 0x17) | (b >> 0x09)) + c
+    b = b&0xffffffff
     a = (b ^ c ^ d) + struct.unpack("I",param[0x04:8])[0] + a - 0x5B4115BC
+    a = a&0xffffffff
     a = ((a << 0x04) | (a >> 0x1c)) + b
+    a = a&0xffffffff
     d = (a ^ b ^ c) + struct.unpack("I",param[0x10:0x14])[0] + d + 0x4BDECFA9
+    d = d&0xffffffff
     d = ((d << 0x0b) | (d >> 0x15)) + a
+    d = d&0xffffffff
     c = (d ^ a ^ b) + struct.unpack("I",param[0x1c:32])[0] + c - 0x0944B4A0
+    c = c&0xffffffff
     c = ((c << 0x10) | (c >> 0x10)) + d
+    c = c&0xffffffff
     b = (c ^ d ^ a) + struct.unpack("I",param[0x28:44])[0] + b - 0x41404390
+    b = b&0xffffffff
     b = ((b << 0x17) | (b >> 0x09)) + c
+    b = b&0xffffffff
     a = (b ^ c ^ d) + struct.unpack("I",param[0x34:0x38])[0] + a + 0x289B7EC6
+    a = a&0xffffffff
     a = ((a << 0x04) | (a >> 0x1c)) + b
+    a = a&0xffffffff
     d = (a ^ b ^ c) + struct.unpack("I",param[0x00:4])[0] + d - 0x155ED806
+    d = d&0xffffffff
     d = ((d << 0x0b) | (d >> 0x15)) + a
+    d = d&0xffffffff
     c = (d ^ a ^ b) + struct.unpack("I",param[0x0c:16])[0] + c - 0x2B10CF7B
+    c = c&0xffffffff
     c = ((c << 0x10) | (c >> 0x10)) + d
+    c = c&0xffffffff
     b = (c ^ d ^ a) + struct.unpack("I",param[0x18:28])[0] + b + 0x04881D05
+    b = b&0xffffffff
     b = ((b << 0x17) | (b >> 0x09)) + c
+    b = b&0xffffffff
     a = (b ^ c ^ d) + struct.unpack("I",param[0x24:0x28])[0] + a - 0x262B2FC7
+    a = a&0xffffffff
     a = ((a << 0x04) | (a >> 0x1c)) + b
+    a = a&0xffffffff
     d = (a ^ b ^ c) + struct.unpack("I",param[0x30:0x34])[0] + d - 0x1924661B
+    d = d&0xffffffff
     d = ((d << 0x0b) | (d >> 0x15)) + a
+    d = d&0xffffffff
     c = (d ^ a ^ b) + struct.unpack("I",param[0x3c:64])[0] + c + 0x1fa27cf8
+    c = c&0xffffffff
     c = ((c << 0x10) | (c >> 0x10)) + d
+    c = c&0xffffffff
     b = (c ^ d ^ a) + struct.unpack("I",param[0x08:12])[0] + b - 0x3B53A99B
+    b = b&0xffffffff
     b = ((b << 0x17) | (b >> 0x09)) + c
+    b = b&0xffffffff
     
     a = ((~d | b) ^ c) + struct.unpack("I",param[0x00:4])[0] + a - 0x0BD6DDBC
+    a = a&0xffffffff
     a = ((a << 0x06) | (a >> 0x1a)) + b
+    a = a&0xffffffff
     d = ((~c | a) ^ b) + struct.unpack("I",param[0x1c:32])[0] + d + 0x432AFF97
+    d = d&0xffffffff
     d = ((d << 0x0a) | (d >> 0x16)) + a
+    d = d&0xffffffff
     c = ((~b | d) ^ a) + struct.unpack("I",param[0x38:60])[0] + c - 0x546BDC59
+    c = c&0xffffffff
     c = ((c << 0x0f) | (c >> 0x11)) + d
+    c = c&0xffffffff
     b = ((~a | c) ^ d) + struct.unpack("I",param[0x14:0x18])[0] + b - 0x036C5FC7
+    b = b&0xffffffff
     b = ((b << 0x15) | (b >> 0x0b)) + c
+    b = b&0xffffffff
     a = ((~d | b) ^ c) + struct.unpack("I",param[0x30:0x34])[0] + a + 0x655B59C3
+    a = a&0xffffffff
     a = ((a << 0x06) | (a >> 0x1a)) + b
+    a = a&0xffffffff
     d = ((~c | a) ^ b) + struct.unpack("I",param[0x0C:16])[0] + d - 0x70F3336E
+    d = d&0xffffffff
     d = ((d << 0x0a) | (d >> 0x16)) + a
+    d = d&0xffffffff
     c = ((~b | d) ^ a) + struct.unpack("I",param[0x28:44])[0] + c - 0x00100B83
+    c = c&0xffffffff
     c = ((c << 0x0f) | (c >> 0x11)) + d
+    c = c&0xffffffff
     b = ((~a | c) ^ d) + struct.unpack("I",param[0x04:8])[0] + b - 0x7A7BA22F
+    b = b&0xffffffff
     b = ((b << 0x15) | (b >> 0x0b)) + c
+    b = b&0xffffffff
     a = ((~d | b) ^ c) + struct.unpack("I",param[0x20:0x24])[0] + a + 0x6FA87E4F
+    a = a&0xffffffff
     a = ((a << 0x06) | (a >> 0x1a)) + b
+    a = a&0xffffffff
     d = ((~c | a) ^ b) + struct.unpack("I",param[0x3c:64])[0] + d - 0x01D31920
+    d = d&0xffffffff
     d = ((d << 0x0a) | (d >> 0x16)) + a
+    d = d&0xffffffff
     c = ((~b | d) ^ a) + struct.unpack("I",param[0x18:28])[0] + c - 0x5CFEBCEC
+    c = c&0xffffffff
     c = ((c << 0x0f) | (c >> 0x11)) + d
+    c = c&0xffffffff
     b = ((~a | c) ^ d) + struct.unpack("I",param[0x34:0x38])[0] + b + 0x4E0811A1
+    b = b&0xffffffff
     b = ((b << 0x15) | (b >> 0x0b)) + c
+    b = b&0xffffffff
     a = ((~d | b) ^ c) + struct.unpack("I",param[0x10:0x14])[0] + a - 0x08AC817E
+    a = a&0xffffffff
     a = ((a << 0x06) | (a >> 0x1a)) + b
+    a = a&0xffffffff
     d = ((~c | a) ^ b) + struct.unpack("I",param[0x2c:48])[0] + d - 0x42C50DCB
+    d = d&0xffffffff
     d = ((d << 0x0a) | (d >> 0x16)) + a
+    d = d&0xffffffff
     c = ((~b | d) ^ a) + struct.unpack("I",param[0x08:12])[0] + c + 0x2AD7D2BB
+    c = c&0xffffffff
     c = ((c << 0x0f) | (c >> 0x11)) + d
+    c = c&0xffffffff
     b = ((~a | c) ^ d) + struct.unpack("I",param[0x24:0x28])[0] + b - 0x14792C6F
+    b = b&0xffffffff
     b = ((b << 0x15) | (b >> 0x0b)) + c
+    b = b&0xffffffff
 
     a += 0x67452301
+    a = a&0xffffffff
     b += 0xefcdab89
+    b = b&0xffffffff
     c += 0x98badcfe
+    c = c&0xffffffff
     d += 0x10325476
-    
-    print ">>>", hex(a),hex(b),hex(c),hex(d)
+    d = d&0xffffffff
     
     # switch to little endian
     a = ((a&0xff000000)>>24) + ((a&0xff0000)>>8) + ((a&0xff00)<<8) + ((a&0xff)<<24)
@@ -230,12 +348,10 @@ def itunes_pairingcode( passcode, pair ):
     d = ((d&0xff000000)>>24) + ((d&0xff0000)>>8) + ((d&0xff00)<<8) + ((d&0xff)<<24)
     
     # write the pairing id and return it
-    
-    print ">>>", hex(a),hex(b),hex(c),hex(d)
-    
     return struct.pack("IIII", a, b, c, d )
 
-
+def to_hex(expected):
+    return string.replace("".join([ hex(i) for i in struct.unpack('IIII', expected)]),"0x","").upper()
 
 
 if __name__ == "__main__":
@@ -246,19 +362,8 @@ if __name__ == "__main__":
     name    = '0000000000000001'
     passcode = '1234'
     
-    name2   = '\x00' * 15 + '\x01'
-    passcode2 = '\x01\x02\x03\x04'
-
-    expected = itunes_pairingcode(passcode, name)
-    print "Expected",  hex(struct.unpack('Q',expected[0:8])[0]),  hex(struct.unpack('Q',expected[8:16])[0])
-    
-    print 
-    print
-    print
-    print
-    expected = itunes_pairingcode(passcode2, name2)
-    print "Expected",  hex(struct.unpack('Q',expected[0:8])[0]),  hex(struct.unpack('Q',expected[8:16])[0])
-    
+    value = itunes_pairingcode(passcode, name)
+    print "Expected", to_hex(value)
     
     
 
