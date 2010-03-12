@@ -1,4 +1,4 @@
-==DACP Remote Control==
+== DACP Remote Control
 
 The Digital Audio Control Protocol (DACP) was recently introduced by Apple, and is built into all
 recent iTunes versions. DACP is the protocol used by the Remote app on the iPhone/iPod Touch to 
