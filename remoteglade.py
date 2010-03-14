@@ -241,7 +241,7 @@ class Remote:
                 
         builder.connect_signals( self )
 
-        self.remote = remotecontrol.connect(update = False)
+        self.remote = remotecontrol.connectRC(update = False)
         self.update_speakers()
         self.update_status()
         self.update_playlists()

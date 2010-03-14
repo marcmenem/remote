@@ -18,13 +18,15 @@ time.sleep(1.5)
 
 __macosx__ = sys.platform == 'darwin'
 
-if not __macosx__:
-    import gobject
-    loop2 = gobject.MainLoop()
-    loop2.run()        
 
-connect.browse().start()
-
+if __macosx__:
+    connect.browse().start()
+else:
+    #import gobject
+    #loop2 = gobject.MainLoop()
+    #loop2.run()
+    pass
+    
 
 class client:
     def __init__(self):
@@ -68,11 +70,18 @@ class configManager:
             self.config.write(configfile)
         
     def connect(self, dbId, sessionid):
-        self.config.set(dbId, "sessionid", sessionid)
+        try:
+            self.config.set(dbId, "sessionid", sessionid)
+        except:
+            print "EEEE", "unable to add config"
         
     def unconnect(self, dbId):
-        self.config.remove_option(dbId, "sessionid")
+        try:
+            self.config.remove_option(dbId, "sessionid")
+        except:
+            print "EEEE", "unable to remove config"
         
+    
     def sessionid( self, dbId ):
         try:
             str = self.get(dbId, "sessionid")

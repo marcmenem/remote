@@ -6,7 +6,7 @@ import struct
 import sys, re
 
 import decode
-import remotecontrol
+
 
 LISTENERS = {}
 BRANCHES = ["cmst", "mlog", "agal", "mlcl", "mshl", "mlit", "abro", "abar", 
@@ -549,6 +549,8 @@ class response(parser):
 
 
 if __name__ == "__main__":
+    import remotecontrol
+
     conn = remotecontrol.remote()
 
     status = conn.status()

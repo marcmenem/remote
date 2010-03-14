@@ -10,6 +10,7 @@ regtype  = '_touch-able._tcp'
 timeout  = 5
 itunesClients = {}
 
+postHook = None
 
 
 data = []
@@ -147,11 +148,8 @@ else:
         it.ip = args[7].decode() 
         it.show()
         
-        print ">>>>>>>>>>>>>",  __main__
-        """
-        loop = gobject.MainLoop()
-        loop.quit()
-      """
+        if postHook:
+            postHook()
       
     def print_error(*args):
         print 'error_handler'
