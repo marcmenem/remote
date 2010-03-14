@@ -146,6 +146,12 @@ else:
         it.resolved( args[5].decode() , fn, args[8].real , txtRecord )
         it.ip = args[7].decode() 
         it.show()
+        
+        print ">>>>>>>>>>>>>",  __main__
+        """
+        loop = gobject.MainLoop()
+        loop.quit()
+      """
       
     def print_error(*args):
         print 'error_handler'
