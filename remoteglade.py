@@ -9,7 +9,7 @@ import gobject
 
 import remotecontrol
 import threading 
-import connect
+import config
 
 class searcher(threading.Thread):
     def __init__(self, win):
@@ -66,31 +66,29 @@ class Remote:
             pass
             
         albums = self.searchresults.append(None)
-        self.searchresults.set_value( albums, 0, 'Albums' )
-        self.searchresults.set_value( albums, 1, str(res.albums.totnb) )
-        for pl in res.albums.list:
-            row = self.searchresults.append(albums)
-            self.searchresults.set_value( row, 0, pl.name )
-
+        if albums:
+            self.searchresults.set_value( albums, 0, 'Albums' )
+            self.searchresults.set_value( albums, 1, str(res.albums.totnb) )
+            for pl in res.albums.list:
+                row = self.searchresults.append(albums)
+                self.searchresults.set_value( row, 0, pl.name )
+    
+    
         artists = self.searchresults.append(None)
-        self.searchresults.set_value( artists, 0, 'Artist' )
-        self.searchresults.set_value( artists, 1, str(res.artists.totnb) )
-        for pl in res.artists.list:
-            row = self.searchresults.append(artists)
-            self.searchresults.set_value( row, 0, pl )
+        if artists:
+            self.searchresults.set_value( artists, 0, 'Artist' )
+            self.searchresults.set_value( artists, 1, str(res.artists.totnb) )
+            for pl in res.artists.list:
+                row = self.searchresults.append(artists)
+                self.searchresults.set_value( row, 0, pl )
 
         tracks = self.searchresults.append(None)
-        self.searchresults.set_value( tracks, 0, 'Songs' )
-        self.searchresults.set_value( tracks, 1, str(res.tracks.totnb) )
-        for pl in res.tracks.list:
-            row = self.searchresults.append(tracks)
-            self.searchresults.set_value( row, 0, pl.name )
-       
-            
-        
-    #def add_results(self, category, results):
-    #    #FIXME
-    #    print category, results
+        if tracks:
+            self.searchresults.set_value( tracks, 0, 'Songs' )
+            self.searchresults.set_value( tracks, 1, str(res.tracks.totnb) )
+            for pl in res.tracks.list:
+                row = self.searchresults.append(tracks)
+                self.searchresults.set_value( row, 0, pl.name )
         
         
     def volumerelease(self, window):
@@ -239,8 +237,13 @@ class Remote:
         self.image = builder.get_object("image1")
                 
         builder.connect_signals( self )
+        
+        config.connect.postHook = self.connectRC
 
-        self.remote = remotecontrol.connect(update = False)
+
+    def connectRC(self):
+        print "Connecting remote"
+        self.remote = remotecontrol.connectRC(update = False)
         self.update_speakers()
         self.update_status()
         self.update_playlists()

@@ -40,7 +40,8 @@ import config
 
 
 print """Remote version %s, Copyright (C) 2010 Marc Menem
-Remote comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.""" % __version__
+Remote comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
+""" % __version__
     
 
 confMan = config.configManager()
@@ -66,7 +67,7 @@ class playlistman(daemonThread):
         if not hasattr(self.remote,'nextplaylistupdate'): self.remote.update()
         st = self.remote.update( self.remote.nextplaylistupdate )
         print "Update playlist"
-        self.run()        
+        self.run()
 
 
 
@@ -584,10 +585,20 @@ query='daap.songalbumid:14279550205875584078'"
 def connectRC(update = True):
     requiredDB = 'Biblioth\xc3\xa8que de \xc2\xab\xc2\xa0Marc Menem\xc2\xa0\xc2\xbb'
 
+
+    print "Connecting"
+    
     conn = None
-    while not conn:
-        if len(config.connect.itunesClients) > 0:
-            for it in connect.itunesClients.values():
+    t = 1000
+    while not conn and t>0:
+        sys.stdout.flush()
+
+        nbCl = len(config.connect.itunesClients)
+        if nbCl > 0:
+            print "Got %i clients" % nbCl
+    
+            for it in config.connect.itunesClients.values():
+
                 conn2 = remote(it.ip, it.port, it.dbId)
                 si = conn2.serverinfo()
                 dbn = si['msrv']['minm']
@@ -599,19 +610,14 @@ def connectRC(update = True):
                     print "Skipping", dbn
         else:
             time.sleep(0.5)
-    """
-    else:
-       conn2 = remote('192.168.0.11', 3689, "985461928A772735")
-       si = conn2.serverinfo()
-       dbn = si['msrv']['minm']
-       if dbn == requiredDB:
-            conn = conn2
-            conn.showStatus()
-            if update: conn.updatecallback()
-       else:
-            print "iTunes not started ?"     
-    """
+        
+        t -= 1
     
+    if t == 0:
+        print "Failed"
+
+
+
     
     import atexit
 
@@ -621,14 +627,27 @@ def connectRC(update = True):
         conn.logout()
         confMan.saveConfig()
 
+    print "Exiting connectRC"
     return conn
 
+
 if __name__ == "__main__":
+    
+    __macosx__ = sys.platform == 'darwin'
+    
+    if not __macosx__:
+        import gobject
+        loop = gobject.MainLoop()
+        
+
+        def quitMain():
+            print "Quiting GLib main loop"
+            loop.quit()
+        
+        config.connect.postHook = quitMain
+        loop.run()
+        
+    
     conn = connectRC()
-
-
-
-
-
 
 
