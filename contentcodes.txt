@@ -1,0 +1,634 @@
+ mccr  --+
+	mstt (dmap.status)             4      200
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835624804 #(miid)
+		mcna (dmap.contentcodesname)   11     dmap.itemid #(dmap.itemid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835626093 #(minm)
+		mcna (dmap.contentcodesname)   13     dmap.itemname #(dmap.itemname)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835625316 #(mikd)
+		mcna (dmap.contentcodesname)   13     dmap.itemkind #(dmap.itemkind)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836082546 #(mper)
+		mcna (dmap.contentcodesname)   17     dmap.persistentid #(dmap.persistentid)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835233134 #(mcon)
+		mcna (dmap.contentcodesname)   14     dmap.container #(dmap.container)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835234409 #(mcti)
+		mcna (dmap.contentcodesname)   20     dmap.containeritemid #(dmap.containeritemid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836082031 #(mpco)
+		mcna (dmap.contentcodesname)   22     dmap.parentcontainerid #(dmap.parentcontainerid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836282996 #(mstt)
+		mcna (dmap.contentcodesname)   11     dmap.status #(dmap.status)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836282995 #(msts)
+		mcna (dmap.contentcodesname)   17     dmap.statusstring #(dmap.statusstring)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835625827 #(mimc)
+		mcna (dmap.contentcodesname)   14     dmap.itemcount #(dmap.itemcount)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835234403 #(mctc)
+		mcna (dmap.contentcodesname)   19     dmap.containercount #(dmap.containercount)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836213103 #(mrco)
+		mcna (dmap.contentcodesname)   18     dmap.returnedcount #(dmap.returnedcount)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836344175 #(mtco)
+		mcna (dmap.contentcodesname)   24     dmap.specifiedtotalcount #(dmap.specifiedtotalcount)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1720542056
+		mcna (dmap.contentcodesname)   23     dmap.haschildcontainers #(dmap.haschildcontainers)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835819884 #(mlcl)
+		mcna (dmap.contentcodesname)   12     dmap.listing #(dmap.listing)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835821428 #(mlit)
+		mcna (dmap.contentcodesname)   16     dmap.listingitem #(dmap.listingitem)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835164524 #(mbcl)
+		mcna (dmap.contentcodesname)   8      7236547310696685927 #(dmap.bag)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835295596 #(mdcl)
+		mcna (dmap.contentcodesname)   15     dmap.dictionary #(dmap.dictionary)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836282486 #(msrv)
+		mcna (dmap.contentcodesname)   23     dmap.serverinforesponse #(dmap.serverinforesponse)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836278133 #(msau)
+		mcna (dmap.contentcodesname)   25     dmap.authenticationmethod #(dmap.authenticationmethod)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836278131 #(msas)
+		mcna (dmap.contentcodesname)   26     dmap.authenticationschemes #(dmap.authenticationschemes)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836280946 #(mslr)
+		mcna (dmap.contentcodesname)   18     dmap.loginrequired #(dmap.loginrequired)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836085871 #(mpro)
+		mcna (dmap.contentcodesname)   20     dmap.protocolversion #(dmap.protocolversion)
+		mcty (dmap.contentcodestype)   2      11
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836278124 #(msal)
+		mcna (dmap.contentcodesname)   23     dmap.supportsautologout #(dmap.supportsautologout)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836283248 #(msup)
+		mcna (dmap.contentcodesname)   19     dmap.supportsupdate #(dmap.supportsupdate)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836281961 #(mspi)
+		mcna (dmap.contentcodesname)   26     dmap.supportspersistentids #(dmap.supportspersistentids)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836279160 #(msex)
+		mcna (dmap.contentcodesname)   23     dmap.supportsextensions #(dmap.supportsextensions)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836278386 #(msbr)
+		mcna (dmap.contentcodesname)   19     dmap.supportsbrowse #(dmap.supportsbrowse)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836282233 #(msqy)
+		mcna (dmap.contentcodesname)   18     dmap.supportsquery #(dmap.supportsquery)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836280184 #(msix)
+		mcna (dmap.contentcodesname)   18     dmap.supportsindex #(dmap.supportsindex)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836282483 #(msrs)
+		mcna (dmap.contentcodesname)   20     dmap.supportsresolve #(dmap.supportsresolve)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836282989 #(mstm)
+		mcna (dmap.contentcodesname)   20     dmap.timeoutinterval #(dmap.timeoutinterval)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836278883 #(msdc)
+		mcna (dmap.contentcodesname)   19     dmap.databasescount #(dmap.databasescount)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836282979 #(mstc)
+		mcna (dmap.contentcodesname)   12     dmap.utctime #(dmap.utctime)
+		mcty (dmap.contentcodestype)   2      10
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836282991 #(msto)
+		mcna (dmap.contentcodesname)   14     dmap.utcoffset #(dmap.utcoffset)
+		mcty (dmap.contentcodestype)   2      6
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835822951 #(mlog)
+		mcna (dmap.contentcodesname)   18     dmap.loginresponse #(dmap.loginresponse)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835821412 #(mlid)
+		mcna (dmap.contentcodesname)   14     dmap.sessionid #(dmap.sessionid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836413028 #(mupd)
+		mcna (dmap.contentcodesname)   19     dmap.updateresponse #(dmap.updateresponse)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836413810 #(musr)
+		mcna (dmap.contentcodesname)   19     dmap.serverrevision #(dmap.serverrevision)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836414073 #(muty)
+		mcna (dmap.contentcodesname)   15     dmap.updatetype #(dmap.updatetype)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1836409964 #(mudl)
+		mcna (dmap.contentcodesname)   21     dmap.deletedidlisting #(dmap.deletedidlisting)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835230066 #(mccr)
+		mcna (dmap.contentcodesname)   25     dmap.contentcodesresponse #(dmap.contentcodesresponse)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835232877 #(mcnm)
+		mcna (dmap.contentcodesname)   23     dmap.contentcodesnumber #(dmap.contentcodesnumber)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835232865 #(mcna)
+		mcna (dmap.contentcodesname)   21     dmap.contentcodesname #(dmap.contentcodesname)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835234425 #(mcty)
+		mcna (dmap.contentcodesname)   21     dmap.contentcodestype #(dmap.contentcodestype)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1635018084 #(ated)
+		mcna (dmap.contentcodesname)   22     daap.supportsextradata #(daap.supportsextradata)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634759279 #(apro)
+		mcna (dmap.contentcodesname)   20     daap.protocolversion #(daap.protocolversion)
+		mcty (dmap.contentcodestype)   2      11
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1635148898 #(avdb)
+		mcna (dmap.contentcodesname)   20     daap.serverdatabases #(daap.serverdatabases)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1633841775 #(abro)
+		mcna (dmap.contentcodesname)   19     daap.databasebrowse #(daap.databasebrowse)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1633968755 #(adbs)
+		mcna (dmap.contentcodesname)   18     daap.databasesongs #(daap.databasesongs)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634757753 #(aply)
+		mcna (dmap.contentcodesname)   22     daap.databaseplaylists #(daap.databaseplaylists)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634759535 #(apso)
+		mcna (dmap.contentcodesname)   18     daap.playlistsongs #(daap.playlistsongs)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634890614 #(arsv)
+		mcna (dmap.contentcodesname)   12     daap.resolve #(daap.resolve)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634888038 #(arif)
+		mcna (dmap.contentcodesname)   16     daap.resolveinfo #(daap.resolveinfo)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1633837420 #(abal)
+		mcna (dmap.contentcodesname)   23     daap.browsealbumlisting #(daap.browsealbumlisting)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1633837426 #(abar)
+		mcna (dmap.contentcodesname)   24     daap.browseartistlisting #(daap.browseartistlisting)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1633837936 #(abcp)
+		mcna (dmap.contentcodesname)   26     daap.browsecomposerlisting #(daap.browsecomposerlisting)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1633838958 #(abgn)
+		mcna (dmap.contentcodesname)   23     daap.browsegenrelisting #(daap.browsegenrelisting)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634029648 #(aePP)
+		mcna (dmap.contentcodesname)   36     com.apple.itunes.is-podcast-playlist #(com.apple.itunes.is-podcast-playlist)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634951532 #(asal)
+		mcna (dmap.contentcodesname)   14     daap.songalbum #(daap.songalbum)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634951538 #(asar)
+		mcna (dmap.contentcodesname)   15     daap.songartist #(daap.songartist)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634951794 #(asbr)
+		mcna (dmap.contentcodesname)   16     daap.songbitrate #(daap.songbitrate)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952045 #(ascm)
+		mcna (dmap.contentcodesname)   16     daap.songcomment #(daap.songcomment)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952047 #(asco)
+		mcna (dmap.contentcodesname)   20     daap.songcompilation #(daap.songcompilation)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952048 #(ascp)
+		mcna (dmap.contentcodesname)   17     daap.songcomposer #(daap.songcomposer)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952289 #(asda)
+		mcna (dmap.contentcodesname)   18     daap.songdateadded #(daap.songdateadded)
+		mcty (dmap.contentcodestype)   2      10
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952301 #(asdm)
+		mcna (dmap.contentcodesname)   21     daap.songdatemodified #(daap.songdatemodified)
+		mcty (dmap.contentcodestype)   2      10
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952291 #(asdc)
+		mcna (dmap.contentcodesname)   18     daap.songdisccount #(daap.songdisccount)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952302 #(asdn)
+		mcna (dmap.contentcodesname)   19     daap.songdiscnumber #(daap.songdiscnumber)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952561 #(aseq)
+		mcna (dmap.contentcodesname)   17     daap.songeqpreset #(daap.songeqpreset)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634953070 #(asgn)
+		mcna (dmap.contentcodesname)   14     daap.songgenre #(daap.songgenre)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952308 #(asdt)
+		mcna (dmap.contentcodesname)   20     daap.songdescription #(daap.songdescription)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634955894 #(asrv)
+		mcna (dmap.contentcodesname)   23     daap.songrelativevolume #(daap.songrelativevolume)
+		mcty (dmap.contentcodestype)   2      2
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956146 #(assr)
+		mcna (dmap.contentcodesname)   19     daap.songsamplerate #(daap.songsamplerate)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956154 #(assz)
+		mcna (dmap.contentcodesname)   13     daap.songsize #(daap.songsize)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956148 #(asst)
+		mcna (dmap.contentcodesname)   18     daap.songstarttime #(daap.songstarttime)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956144 #(assp)
+		mcna (dmap.contentcodesname)   17     daap.songstoptime #(daap.songstoptime)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956397 #(astm)
+		mcna (dmap.contentcodesname)   13     daap.songtime #(daap.songtime)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956387 #(astc)
+		mcna (dmap.contentcodesname)   19     daap.songtrackcount #(daap.songtrackcount)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956398 #(astn)
+		mcna (dmap.contentcodesname)   20     daap.songtracknumber #(daap.songtracknumber)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956658 #(asur)
+		mcna (dmap.contentcodesname)   19     daap.songuserrating #(daap.songuserrating)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634957682 #(asyr)
+		mcna (dmap.contentcodesname)   13     daap.songyear #(daap.songyear)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952813 #(asfm)
+		mcna (dmap.contentcodesname)   15     daap.songformat #(daap.songformat)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835626093 #(minm)
+		mcna (dmap.contentcodesname)   13     dmap.itemname #(dmap.itemname)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952290 #(asdb)
+		mcna (dmap.contentcodesname)   17     daap.songdisabled #(daap.songdisabled)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634029142 #(aeNV)
+		mcna (dmap.contentcodesname)   28     com.apple.itunes.norm-volume #(com.apple.itunes.norm-volume)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634030416 #(aeSP)
+		mcna (dmap.contentcodesname)   31     com.apple.itunes.smart-playlist #(com.apple.itunes.smart-playlist)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952299 #(asdk)
+		mcna (dmap.contentcodesname)   17     daap.songdatakind #(daap.songdatakind)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956652 #(asul)
+		mcna (dmap.contentcodesname)   16     daap.songdataurl #(daap.songdataurl)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634951796 #(asbt)
+		mcna (dmap.contentcodesname)   23     daap.songbeatsperminute #(daap.songbeatsperminute)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1633841260 #(abpl)
+		mcna (dmap.contentcodesname)   17     daap.baseplaylist #(daap.baseplaylist)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634169456 #(agrp)
+		mcna (dmap.contentcodesname)   17     daap.songgrouping #(daap.songgrouping)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634030409 #(aeSI)
+		mcna (dmap.contentcodesname)   28     com.apple.itunes.itms-songid #(com.apple.itunes.itms-songid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634025801 #(aeAI)
+		mcna (dmap.contentcodesname)   30     com.apple.itunes.itms-artistid #(com.apple.itunes.itms-artistid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634029641 #(aePI)
+		mcna (dmap.contentcodesname)   32     com.apple.itunes.itms-playlistid #(com.apple.itunes.itms-playlistid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634026313 #(aeCI)
+		mcna (dmap.contentcodesname)   32     com.apple.itunes.itms-composerid #(com.apple.itunes.itms-composerid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634027337 #(aeGI)
+		mcna (dmap.contentcodesname)   29     com.apple.itunes.itms-genreid #(com.apple.itunes.itms-genreid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952036 #(ascd)
+		mcna (dmap.contentcodesname)   18     daap.songcodectype #(daap.songcodectype)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952051 #(ascs)
+		mcna (dmap.contentcodesname)   21     daap.songcodecsubtype #(daap.songcodecsubtype)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634030406 #(aeSF)
+		mcna (dmap.contentcodesname)   34     com.apple.itunes.itms-storefrontid #(com.apple.itunes.itms-storefrontid)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634759533 #(apsm)
+		mcna (dmap.contentcodesname)   24     daap.playlistshufflemode #(daap.playlistshufflemode)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634759277 #(aprm)
+		mcna (dmap.contentcodesname)   23     daap.playlistrepeatmode #(daap.playlistrepeatmode)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634029635 #(aePC)
+		mcna (dmap.contentcodesname)   27     com.apple.itunes.is-podcast #(com.apple.itunes.is-podcast)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952052 #(asct)
+		mcna (dmap.contentcodesname)   17     daap.songcategory #(daap.songcategory)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952046 #(ascn)
+		mcna (dmap.contentcodesname)   27     daap.songcontentdescription #(daap.songcontentdescription)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634954339 #(aslc)
+		mcna (dmap.contentcodesname)   31     daap.songlongcontentdescription #(daap.songlongcontentdescription)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634954105 #(asky)
+		mcna (dmap.contentcodesname)   17     daap.songkeywords #(daap.songkeywords)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952050 #(ascr)
+		mcna (dmap.contentcodesname)   22     daap.songcontentrating #(daap.songcontentrating)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634027606 #(aeHV)
+		mcna (dmap.contentcodesname)   26     com.apple.itunes.has-video #(com.apple.itunes.has-video)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634028875 #(aeMK)
+		mcna (dmap.contentcodesname)   26     com.apple.itunes.mediakind #(com.apple.itunes.mediakind)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634030414 #(aeSN)
+		mcna (dmap.contentcodesname)   28     com.apple.itunes.series-name #(com.apple.itunes.series-name)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634029134 #(aeNN)
+		mcna (dmap.contentcodesname)   29     com.apple.itunes.network-name #(com.apple.itunes.network-name)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634026830 #(aeEN)
+		mcna (dmap.contentcodesname)   32     com.apple.itunes.episode-num-str #(com.apple.itunes.episode-num-str)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634026835 #(aeES)
+		mcna (dmap.contentcodesname)   29     com.apple.itunes.episode-sort #(com.apple.itunes.episode-sort)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634030421 #(aeSU)
+		mcna (dmap.contentcodesname)   27     com.apple.itunes.season-num #(com.apple.itunes.season-num)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634027336 #(aeGH)
+		mcna (dmap.contentcodesname)   29     com.apple.itunes.gapless-heur #(com.apple.itunes.gapless-heur)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634951521 #(asaa)
+		mcna (dmap.contentcodesname)   20     daap.songalbumartist #(daap.songalbumartist)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634027332 #(aeGD)
+		mcna (dmap.contentcodesname)   31     com.apple.itunes.gapless-enc-dr #(com.apple.itunes.gapless-enc-dr)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634027349 #(aeGU)
+		mcna (dmap.contentcodesname)   28     com.apple.itunes.gapless-dur #(com.apple.itunes.gapless-dur)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634027346 #(aeGR)
+		mcna (dmap.contentcodesname)   29     com.apple.itunes.gapless-resy #(com.apple.itunes.gapless-resy)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634027333 #(aeGE)
+		mcna (dmap.contentcodesname)   32     com.apple.itunes.gapless-enc-del #(com.apple.itunes.gapless-enc-del)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      0
+		mcna (dmap.contentcodesname)   26     com.apple.itunes.req-fplay #(com.apple.itunes.req-fplay)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634953072 #(asgp)
+		mcna (dmap.contentcodesname)   16     daap.songgapless #(daap.songgapless)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634029651 #(aePS)
+		mcna (dmap.contentcodesname)   33     com.apple.itunes.special-playlist #(com.apple.itunes.special-playlist)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952548 #(ased)
+		mcna (dmap.contentcodesname)   18     daap.songextradata #(daap.songextradata)
+		mcty (dmap.contentcodestype)   2      3
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952306 #(asdr)
+		mcna (dmap.contentcodesname)   21     daap.songdatereleased #(daap.songdatereleased)
+		mcty (dmap.contentcodestype)   2      10
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634952304 #(asdp)
+		mcna (dmap.contentcodesname)   22     daap.songdatepurchased #(daap.songdatepurchased)
+		mcty (dmap.contentcodestype)   2      10
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634953328 #(ashp)
+		mcna (dmap.contentcodesname)   22     daap.songhasbeenplayed #(daap.songhasbeenplayed)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956142 #(assn)
+		mcna (dmap.contentcodesname)   13     daap.sortname #(daap.sortname)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956129 #(assa)
+		mcna (dmap.contentcodesname)   15     daap.sortartist #(daap.sortartist)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956140 #(assl)
+		mcna (dmap.contentcodesname)   20     daap.sortalbumartist #(daap.sortalbumartist)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956149 #(assu)
+		mcna (dmap.contentcodesname)   14     daap.sortalbum #(daap.sortalbum)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956131 #(assc)
+		mcna (dmap.contentcodesname)   17     daap.sortcomposer #(daap.sortcomposer)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634956147 #(asss)
+		mcna (dmap.contentcodesname)   19     daap.sortseriesname #(daap.sortseriesname)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634951787 #(asbk)
+		mcna (dmap.contentcodesname)   17     daap.bookmarkable #(daap.bookmarkable)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634951791 #(asbo)
+		mcna (dmap.contentcodesname)   17     daap.songbookmark #(daap.songbookmark)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634955381 #(aspu)
+		mcna (dmap.contentcodesname)   19     daap.songpodcasturl #(daap.songpodcasturl)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634026322 #(aeCR)
+		mcna (dmap.contentcodesname)   31     com.apple.itunes.content-rating #(com.apple.itunes.content-rating)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634951529 #(asai)
+		mcna (dmap.contentcodesname)   16     daap.songalbumid #(daap.songalbumid)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634954355 #(asls)
+		mcna (dmap.contentcodesname)   17     daap.songlongsize #(daap.songlongsize)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634030407 #(aeSG)
+		mcna (dmap.contentcodesname)   29     com.apple.itunes.saved-genius #(com.apple.itunes.saved-genius)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1835361395 #(meds)
+		mcna (dmap.contentcodesname)   26     dmap.editcommandssupported #(dmap.editcommandssupported)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634027588 #(aeHD)
+		mcna (dmap.contentcodesname)   28     com.apple.itunes.is-hd-video #(com.apple.itunes.is-hd-video)
+		mcty (dmap.contentcodestype)   2      1
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1667582550 #(ceJV)
+		mcna (dmap.contentcodesname)   29     com.apple.itunes.jukebox-vote #(com.apple.itunes.jukebox-vote)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1667582531 #(ceJC)
+		mcna (dmap.contentcodesname)   36     com.apple.itunes.jukebox-client-vote #(com.apple.itunes.jukebox-client-vote)
+		mcty (dmap.contentcodestype)   2      2
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1667582547 #(ceJS)
+		mcna (dmap.contentcodesname)   30     com.apple.itunes.jukebox-score #(com.apple.itunes.jukebox-score)
+		mcty (dmap.contentcodestype)   2      4
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1667582537 #(ceJI)
+		mcna (dmap.contentcodesname)   32     com.apple.itunes.jukebox-current #(com.apple.itunes.jukebox-current)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634030405 #(aeSE)
+		mcna (dmap.contentcodesname)   30     com.apple.itunes.store-pers-id #(com.apple.itunes.store-pers-id)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634026578 #(aeDR)
+		mcna (dmap.contentcodesname)   28     com.apple.itunes.drm-user-id #(com.apple.itunes.drm-user-id)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634029124 #(aeND)
+		mcna (dmap.contentcodesname)   32     com.apple.itunes.non-drm-user-id #(com.apple.itunes.non-drm-user-id)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634028337 #(aeK1)
+		mcna (dmap.contentcodesname)   28     com.apple.itunes.drm-key1-id #(com.apple.itunes.drm-key1-id)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634028338 #(aeK2)
+		mcna (dmap.contentcodesname)   28     com.apple.itunes.drm-key2-id #(com.apple.itunes.drm-key2-id)
+		mcty (dmap.contentcodestype)   2      7
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634026582 #(aeDV)
+		mcna (dmap.contentcodesname)   29     com.apple.itunes.drm-versions #(com.apple.itunes.drm-versions)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634026576 #(aeDP)
+		mcna (dmap.contentcodesname)   32     com.apple.itunes.drm-platform-id #(com.apple.itunes.drm-platform-id)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634031684 #(aeXD)
+		mcna (dmap.contentcodesname)   20     com.apple.itunes.xid #(com.apple.itunes.xid)
+		mcty (dmap.contentcodestype)   2      9
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634028907 #(aeMk)
+		mcna (dmap.contentcodesname)   36     com.apple.itunes.extended-media-kind #(com.apple.itunes.extended-media-kind)
+		mcty (dmap.contentcodestype)   2      5
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634025796 #(aeAD)
+		mcna (dmap.contentcodesname)   31     com.apple.itunes.adam-ids-array #(com.apple.itunes.adam-ids-array)
+		mcty (dmap.contentcodestype)   2      12
+	mdcl  --+
+		mcnm (dmap.contentcodesnumber) 4      1634030422 #(aeSV)
+		mcna (dmap.contentcodesname)   38     com.apple.itunes.music-sharing-version #(com.apple.itunes.music-sharing-version)
+		mcty (dmap.contentcodestype)   2      5
