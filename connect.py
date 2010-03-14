@@ -1,16 +1,20 @@
 #!/usr/bin/python -i
 
-import select
-import socket
-import sys
+import select, socket, sys, threading
 import pybonjour
 
-import threading
 
 regtype  = '_touch-able._tcp'
 timeout  = 5
 itunesClients = {}
 
+
+
+def txtRec( tr ):
+    d = {}
+    for k in tr: 
+        d[ k[0] ] = k[1]
+    return d
 
 class itunes:
     def __init__(self, interfaceIndex, serviceName, replyDomain):
@@ -39,7 +43,9 @@ class itunes:
         self.fullname = fullname
         self.hosttarget = hosttarget
         self.port = port
-        self.txtRecord = pybonjour.TXTRecord.parse(txtRecord)
+        self.txtRecord = txtRec( pybonjour.TXTRecord.parse(txtRecord) )
+        self.dbName = self.txtRecord['CtlN']
+        self.dbId = self.txtRecord['DbId']
         
         self.resolve_sdRef.close()
         self.resolve_sdRef = None
@@ -57,7 +63,7 @@ class itunes:
         print '  port       =', self.port  
         print '  IP         =', self.ip  
         
-        for k in self.txtRecord: print k[0], '=', k[1]
+        for k in self.txtRecord.keys(): print k, '=', self.txtRecord[ k ]
 
 
     def closeConnexions(self):

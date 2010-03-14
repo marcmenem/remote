@@ -1,25 +1,89 @@
 #!/usr/bin/python -i
 
 import ConfigParser
+import sys, os.path, time
 
-config = ConfigParser.RawConfigParser()
+import connect
+
+filename = 'example.cfg'
+GUID = "0000000000000001"
+remotename = "Marc Remote tbbt"
+defaultPort = 10024
+
+itunesClients = {}
+
+connect.browse().start()
+time.sleep(1.5)
+
+class client:
+    def __init__(self):
+        pass
+    
+    def fromBonjour(self, bjitunes):
+        self.dbId = bjitunes.dbId
+        self.dbName = bjitunes.dbName
+        
+        
+
+class configManager:
+    def __init__(self):
+        self.config = ConfigParser.RawConfigParser()
+        if os.path.exists(filename):
+            self.readConfig()
+        else:
+            self.config.add_section("Client")
+            self.config.set('Client', 'guid', GUID)
+            
+            for it in connect.itunesClients.values():
+                cl = client()
+                cl.fromBonjour(it)
+                self.manage(cl)
+    
+    
+    def manage(self, cl):
+        self.config.add_section(cl.dbId)
+        self.config.set(cl.dbId, "name", cl.dbName )
+    
+    def readConfig(self):
+        try:
+            self.config.read(filename)
+            GUID = self.config.get("Client", "guid")
+            
+        except ConfigParser.NoSectionError, e:
+            print e
+        
+    def saveConfig(self):
+        with open(filename, 'wb') as configfile:
+            self.config.write(configfile)
+        
+    def connect(self, dbId, sessionid):
+        self.config.set(dbId, "sessionid", sessionid)
+        
+    def unconnect(self, dbId):
+        self.config.remove_option(dbId, "sessionid")
+        
+    def sessionid( self, dbId ):
+        try:
+            str = self.get(dbId, "sessionid")
+        except:
+            return None
+        return str
+        
+        
+    #config.remove_option(section1, option)
+
+if __name__ == "__main__":
+    requiredDB = 'Biblioth\xc3\xa8que de \xc2\xab\xc2\xa0Marc Menem\xc2\xa0\xc2\xbb'
+
+    confMan = configManager()
+    confMan.saveConfig()
+
+    sys.exit(0)
 
 
-def addConfig( itunes, config ):
-    config.add_section(itunes.serviceName)
-    config.set( itunes.serviceName, 'guid', '0000000000000001')
-
-def writeConfig():
-    # Writing our configuration file to 'example.cfg'
-    with open('example.cfg', 'wb') as configfile:
-        config.write(configfile)
-
-
-def readConfig():
-    config = ConfigParser.RawConfigParser()
-    config.read('example.cfg')
 
 """
+
 # getfloat() raises an exception if the value is not a float
 # getint() and getboolean() also do this for their respective types
 float = config.getfloat('Section1', 'float')
@@ -30,7 +94,7 @@ print float + int
 # This is because we are using a RawConfigParser().
 if config.getboolean('Section1', 'bool'):
     print config.get('Section1', 'foo')
-"""
+""
 
 
 config = ConfigParser.ConfigParser()
@@ -45,9 +109,6 @@ print config.get('Section1', 'foo', 1) # -> "%(bar)s is %(baz)s!"
 print config.get('Section1', 'foo', 0, {'bar': 'Documentation',
                                         'baz': 'evil'})
 
-
-
-
 # New instance with 'bar' and 'baz' defaulting to 'Life' and 'hard' each
 config = ConfigParser.SafeConfigParser({'bar': 'Life', 'baz': 'hard'})
 config.read('example.cfg')
@@ -58,9 +119,6 @@ config.remove_option('Section1', 'baz')
 print config.get('Section1', 'foo') # -> "Life is hard!"
 
 
-
-
-
 def opt_move(config, section1, section2, option):
     try:
         config.set(section2, option, config.get(section1, option, 1))
@@ -69,4 +127,7 @@ def opt_move(config, section1, section2, option):
         config.add_section(section2)
         opt_move(config, section1, section2, option)
     else:
-        config.remove_option(section1, option)
+        
+
+"""
+
