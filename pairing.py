@@ -133,7 +133,7 @@ if __name__ == "__main__":
                 else:
                     print "Unknown error"
                     raise
-        
+        """        
         if __macos__:
             print "Using pybonjour"
             sdRef = bonjoursocket( port )
@@ -144,7 +144,7 @@ if __name__ == "__main__":
             from ZeroconfService import ZeroconfService
             service = ZeroconfService(name=name, port=port, stype=regtype, text=avahi.dict_to_txt_array(data))
             service.publish()
-        
+        """     
             
     
         while True:

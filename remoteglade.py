@@ -252,6 +252,9 @@ class Remote:
         # self.searcher = searcher(self)
         
 if __name__ == "__main__":
+
+    import avahitest
+
     win = Remote()
     win.window.show_all()
     gobject.threads_init()
