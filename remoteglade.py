@@ -10,7 +10,7 @@ import gobject
 import remotecontrol
 
 import threading 
-import connect
+import config
 
 class searcher(threading.Thread):
     def __init__(self, win):
@@ -240,7 +240,12 @@ class Remote:
         self.image = builder.get_object("image1")
                 
         builder.connect_signals( self )
+        
+        config.connect.postHook = self.connectRC
 
+
+    def connectRC(self):
+        print "Connecting remote"
         self.remote = remotecontrol.connectRC(update = False)
         self.update_speakers()
         self.update_status()
