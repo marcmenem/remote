@@ -12,8 +12,19 @@ defaultPort = 10024
 
 itunesClients = {}
 
-connect.browse().start()
 time.sleep(1.5)
+
+
+
+__macosx__ = sys.platform == 'darwin'
+
+if not __macosx__:
+    import gobject
+    loop2 = gobject.MainLoop()
+    loop2.run()        
+
+connect.browse().start()
+
 
 class client:
     def __init__(self):
