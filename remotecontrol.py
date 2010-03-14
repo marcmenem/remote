@@ -67,7 +67,7 @@ class playlistman(daemonThread):
         if not hasattr(self.remote,'nextplaylistupdate'): self.remote.update()
         st = self.remote.update( self.remote.nextplaylistupdate )
         print "Update playlist"
-        self.run()        
+        self.run()
 
 
 
