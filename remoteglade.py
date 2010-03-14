@@ -10,6 +10,7 @@ import gobject
 import remotecontrol
 
 import threading 
+import connect
 
 class searcher(threading.Thread):
     def __init__(self, win):
@@ -252,8 +253,6 @@ class Remote:
         # self.searcher = searcher(self)
         
 if __name__ == "__main__":
-
-    import avahitest
 
     win = Remote()
     win.window.show_all()

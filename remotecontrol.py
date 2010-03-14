@@ -24,6 +24,8 @@ http://daap.sourceforge.net/docs/index.html
 """
 
 
+__version__ = "0.1"
+
 
 import urllib, urllib2
 from urllib2 import HTTPError
@@ -34,22 +36,14 @@ import StringIO, gzip
                 
 import decode
 import response
+import config
 
-import ConfigParser
 
-config = ConfigParser.RawConfigParser()
-filename = 'remotecontrol.cfg'
+print """Remote version %s, Copyright (C) 2010 Marc Menem
+Remote comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.""" % __version__
+    
 
-def writeConfig(id):
-    config.add_section('connexion')
-    config.set( itunes.serviceName, 'sessionid', id)
-    # Writing our configuration file to 'example.cfg'
-    with open(filename, 'wb') as configfile:
-        config.write(configfile)
-
-def readConfig():
-    config.read(filename)
-    return config.get('connexion', 'sessionid', 0) 
+confMan = config.configManager()
 
 
 
@@ -99,11 +93,12 @@ class results:
 
 
 class remote:
-    def __init__(self, ip, port):
-        self.guid="0x0000000000000001"
+    def __init__(self, ip, port, dbId ):
+        self.guid="0x" + config.GUID
         self.service = 'http://' + ip + ':' + str(port)
-        self.sessionid = None
+        self.dbId = dbId
         print "Connecting to", self.service
+        self.sessionid = confMan.sessionid(self.dbId)
         
 
     def _ctloperation( self, command, values, verbose = True):
@@ -173,6 +168,8 @@ class remote:
         resp = response.response(data)        
         self.sessionid = resp.resp['mlog']['mlid']
     
+        confMan.connect( self.dbId, self.sessionid )
+    
         print "Got session id", self.sessionid
         self.databases()
         pl = self.playlists()
@@ -185,6 +182,7 @@ class remote:
         url = '%s/logout' % (self.service)
         lo = self._operation( url, {})
         self.sessionid = None
+        #confMan.unconnect( self.dbId )
         return lo
     
     def playlists(self):
@@ -466,25 +464,34 @@ query='daap.songalbumid:14279550205875584078'"
         
         
     """
-            def do_GET_server_info(self):
-            msrv = do('dmap.serverinforesponse',
-                      [ do('dmap.status', 200),
-                        do('dmap.protocolversion', '2.0'),
-                        do('daap.protocolversion', '3.0'),
-                        do('dmap.timeoutinterval', 1800),
-                        do('dmap.itemname', server_name),
-                        do('dmap.loginrequired', 0),
-                        do('dmap.authenticationmethod', 0),
-                        do('dmap.supportsextensions', 0),
-                        do('dmap.supportsindex', 0),
-                        do('dmap.supportsbrowse', 0),
-                        do('dmap.supportsquery', 0),
-                        do('dmap.supportspersistentids', 0),
-                        do('dmap.databasescount', 1),                
-                        #do('dmap.supportsautologout', 0),
-                        #do('dmap.supportsupdate', 0),
-                        #do('dmap.supportsresolve', 0),
-                       ])
+             msrv  --+
+                mstt (dmap.status)             4      200
+                mpro (dmap.protocolversion)    4      131078
+                apro (daap.protocolversion)    4      196616
+                aeSV (com.apple.itunes.music-sharing-version) 4      196609
+                aeFP (com.apple.itunes.req-fplay) 1      1
+                ated (daap.supportsextradata)  2      3
+                msed                           1      1
+                msml  --+
+                    msma                           8      134512876069632
+                    msma                           8      35679737357056
+                ceWM                           0       #()
+                ceVO                           1      0
+                minm (dmap.itemname)           35     Biblio*****
+                mslr (dmap.loginrequired)      1      1
+                mstm (dmap.timeoutinterval)    4      1800
+                msal (dmap.supportsautologout) 1      1
+                msas (dmap.authenticationschemes) 1      3
+                msup (dmap.supportsupdate)     1      1
+                mspi (dmap.supportspersistentids) 1      1
+                msex (dmap.supportsextensions) 1      1
+                msbr (dmap.supportsbrowse)     1      1
+                msqy (dmap.supportsquery)      1      1
+                msix (dmap.supportsindex)      1      1
+                msrs (dmap.supportsresolve)    1      1
+                msdc (dmap.databasescount)     4      1
+                mstc (dmap.utctime)            4      1268580413
+                msto (dmap.utcoffset)          4      3600
     """
     def serverinfo(self):
         url = '%s/server-info' % (self.service)
@@ -574,7 +581,7 @@ query='daap.songalbumid:14279550205875584078'"
 
 """
 
-def connect(update = True):
+def connectRC(update = True):
     requiredDB = 'Biblioth\xc3\xa8que de \xc2\xab\xc2\xa0Marc Menem\xc2\xa0\xc2\xbb'
 
     if sys.platform == 'darwin':
@@ -585,7 +592,7 @@ def connect(update = True):
         while not conn:
             if len(connect.itunesClients) > 0:
                 for it in connect.itunesClients.values():
-                    conn2 = remote(it.ip, it.port)
+                    conn2 = remote(it.ip, it.port, it.dbId)
                     si = conn2.serverinfo()
                     dbn = si['msrv']['minm']
                     if dbn == requiredDB:
@@ -597,7 +604,7 @@ def connect(update = True):
             else:
                 time.sleep(0.5)
     else:
-       conn2 = remote('192.168.0.11', 3689)
+       conn2 = remote('192.168.0.11', 3689, "985461928A772735")
        si = conn2.serverinfo()
        dbn = si['msrv']['minm']
        if dbn == requiredDB:
@@ -613,12 +620,12 @@ def connect(update = True):
     def goodbye():
         print "Logging out"
         conn.logout()
+        confMan.saveConfig()
 
     return conn
 
 if __name__ == "__main__":
-    
-    conn = connect()
+    conn = connectRC()
 
 
 
