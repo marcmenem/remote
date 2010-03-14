@@ -15,15 +15,14 @@ itunesClients = {}
 time.sleep(1.5)
 
 
-
 __macosx__ = sys.platform == 'darwin'
 
 if not __macosx__:
-    import gobject
+    
     loop2 = gobject.MainLoop()
     loop2.run()        
 
-connect.browse().start()
+#connect.browse().start()
 
 
 class client:

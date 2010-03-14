@@ -8,7 +8,6 @@ import gtk.gdk
 import gobject
 
 import remotecontrol
-
 import threading 
 import connect
 
