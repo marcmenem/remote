@@ -1,23 +1,48 @@
 #!/usr/bin/python -i
 
-import socket
-import struct 
-import re
-import select
-import sys
-import pybonjour
-import datetime
+import socket, struct, re, select, sys, datetime
 
+import encode
+import config
 
 __macos__ = sys.platform == 'darwin'
 
-name    = '0000000000000001'
+if __macosx__:
+    import pybonjour
+
+    def register_callback(sdRef, flags, errorCode, name, regtype, domain):
+        if errorCode == pybonjour.kDNSServiceErr_NoError:
+            print 'Registered service:'
+            print '  name    =', name
+            print '  regtype =', regtype
+            print '  domain  =', domain
+    
+    
+    data = {
+        "DvNm" : config.remotename,
+        "RemV" : "10000",
+        "DvTy" : "computer",
+        "RemN" : "Remote",
+        "Pair" : name ,
+        "txtvers" : "1"
+       }
+    
+        
+    def bonjoursocket(port):
+        sdRef = pybonjour.DNSServiceRegister(name = name,
+                                     regtype = regtype,
+                                     port = port, txtRecord = pybonjour.TXTRecord(data),
+                                     callBack = register_callback)
+        return sdRef
+
+
+
+name    = config.GUID
 passcode = '1234'
 
 regtype = '_touch-remote._tcp'
 poll_interval = None
     
-import pairing_code
 
 def serverConnexion(clientsocket): 
     rcv = clientsocket.recv(1024)
@@ -43,8 +68,8 @@ def serverConnexion(clientsocket):
             servicename = n.group(2)
             print "Pairing code", pairingcode, "service name", servicename
     
-    expected = pairing_code.itunes_pairingcode(passcode, name)
-    print "Expected", pairing_code.to_hex(expected)
+    expected = encode.itunes_pairingcode(passcode, name)
+    print "Expected", encode.to_hex(expected)
     
     # any incoming requests are just pairing code related 
     # return our guid regardless of input 
@@ -77,44 +102,18 @@ Content-Length: %s
 
 
 
-
-def register_callback(sdRef, flags, errorCode, name, regtype, domain):
-    if errorCode == pybonjour.kDNSServiceErr_NoError:
-        print 'Registered service:'
-        print '  name    =', name
-        print '  regtype =', regtype
-        print '  domain  =', domain
-
-
-data = {
-    "DvNm" : "Marc Remote",
-    "RemV" : "10000",
-    "DvTy" : "computer",
-    "RemN" : "Remote",
-    "Pair" : name ,
-    "txtvers" : "1"
-   }
-
-
 def startserver(port):
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serversocket.bind((socket.gethostname(), port))
     serversocket.listen(5)
     return serversocket
-    
-def bonjoursocket(port):
-    sdRef = pybonjour.DNSServiceRegister(name = name,
-                                 regtype = regtype,
-                                 port = port, txtRecord = pybonjour.TXTRecord(data),
-                                 callBack = register_callback)
-    return sdRef
 
 
 if __name__ == "__main__":
     
 
     try:
-        port    = 10024
+        port    = config.defaultPort
         connected = False
         maxtries = 12
         tried = 0
