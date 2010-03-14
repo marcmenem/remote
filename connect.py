@@ -1,23 +1,5 @@
 #!/usr/bin/python -i
-#Copyright (C) 2010 Marc Menem
 
-#This file is part of Remote. Remote is free software: you can
-#redistribute it and/or modify it under the terms of the GNU General
-#Public License as published by the Free Software Foundation, either
-#version 3 of the License, or (at your option) any later version.
-
-#Remote is distributed in the hope that it will be useful, but
-#WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-#General Public License for more details.
-
-#You should have received a copy of the GNU General Public License
-#along with Remote. If not, see <http://www.gnu.org/licenses/>.
-
-"""
-Ugly class
-
-"""
 
 
 import select, socket, sys, threading
@@ -59,7 +41,7 @@ if __macosx__:
             it = itunesClients[fullname.split(".")[0]]
             it.resolved( hosttarget, fullname, port, txtRecord )
     
-            it.query_sdRef = pybonjour.DNSServiceQueryRecord( interfaceIndex = interfaceIndex,
+            it.query_sdRef = pybonjour.DNSServiceQueryRecord( interfaceIndex = self.interfaceIndex,
                                 fullname = hosttarget, rrtype = pybonjour.kDNSServiceType_A,
                                 callBack = query_record_callback)
             
@@ -73,9 +55,10 @@ if __macosx__:
             it = itunes( interfaceIndex, serviceName, replyDomain )
             itunesClients[ serviceName ] = it
     
-            it.resolve_sdRef = pybonjour.DNSServiceResolve( 0, interfaceIndex, serviceName,
+            resolve_sdRef = pybonjour.DNSServiceResolve( 0, interfaceIndex, serviceName,
                                 regtype, replyDomain, resolve_callback)
     
+            it.resolver = resolve_sdRef
             
         else:
             print 'Service removed', interfaceIndex, serviceName, replyDomain
@@ -131,6 +114,7 @@ if __macosx__:
         def run(self):
             populateITunes()
 
+    browse().start()
 
 
 else:
@@ -155,12 +139,6 @@ else:
 
     
     def service_resolved(*args):
-        print 'service resolved'
-        print 'name:', args[2]
-        print 'address:', args[7]
-        print 'port:', args[8]
-        print 'hostname:', args[5]
-        
         txtRecord = args[9]
         
         it = itunesClients[args[2].decode() ]
@@ -269,7 +247,8 @@ class itunes:
 if __name__ == "__main__":
 
     if __macosx__:
-        browse().start()
+        pass
+        #browse().start()
     else:
         loop2 = gobject.MainLoop()
         loop2.run()        
