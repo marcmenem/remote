@@ -26,6 +26,11 @@ http://daap.sourceforge.net/docs/index.html
 
 __version__ = "0.1"
 
+print """Remote version %s, Copyright (C) 2010 Marc Menem
+Remote comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
+""" % __version__
+
+
 
 import urllib, urllib2
 from urllib2 import HTTPError
@@ -39,10 +44,6 @@ import response
 import config
 
 
-print """Remote version %s, Copyright (C) 2010 Marc Menem
-Remote comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
-""" % __version__
-    
 
 confMan = config.configManager()
 
@@ -595,19 +596,27 @@ def connectRC(update = True):
 
         nbCl = len(config.connect.itunesClients)
         if nbCl > 0:
-            print "Got %i clients" % nbCl
+            print "Got %i clients" % nbCl, 
     
             for it in config.connect.itunesClients.values():
+                if hasattr(it,'ip') and hasattr(it,'port') and hasattr(it,'dbId') :
 
-                conn2 = remote(it.ip, it.port, it.dbId)
-                si = conn2.serverinfo()
-                dbn = si['msrv']['minm']
-                if dbn == requiredDB:
-                    conn = conn2
-                    conn.showStatus()
-                    if update: conn.updatecallback()
+                    conn2 = remote(it.ip, it.port, it.dbId)
+                    si = conn2.serverinfo()
+                    dbn = si['msrv']['minm']
+                    if dbn == requiredDB:
+                        conn = conn2
+                        conn.showStatus()
+                        if update: conn.updatecallback()
+                    else:
+                        print "Skipping", dbn
+                
                 else:
-                    print "Skipping", dbn
+                    print "... Waiting, client not resolved yet", it
+                    pass
+                    
+            print 
+
         else:
             time.sleep(0.5)
         
@@ -627,7 +636,6 @@ def connectRC(update = True):
         conn.logout()
         confMan.saveConfig()
 
-    print "Exiting connectRC"
     return conn
 
 

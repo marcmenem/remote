@@ -42,7 +42,7 @@ if __macosx__:
             it = itunesClients[fullname.split(".")[0]]
             it.resolved( hosttarget, fullname, port, txtRecord )
     
-            it.query_sdRef = pybonjour.DNSServiceQueryRecord( interfaceIndex = self.interfaceIndex,
+            it.query_sdRef = pybonjour.DNSServiceQueryRecord( interfaceIndex = interfaceIndex,
                                 fullname = hosttarget, rrtype = pybonjour.kDNSServiceType_A,
                                 callBack = query_record_callback)
             
@@ -56,11 +56,9 @@ if __macosx__:
             it = itunes( interfaceIndex, serviceName, replyDomain )
             itunesClients[ serviceName ] = it
     
-            resolve_sdRef = pybonjour.DNSServiceResolve( 0, interfaceIndex, serviceName,
+            it.resolve_sdRef = pybonjour.DNSServiceResolve( 0, interfaceIndex, serviceName,
                                 regtype, replyDomain, resolve_callback)
     
-            it.resolver = resolve_sdRef
-            
         else:
             print 'Service removed', interfaceIndex, serviceName, replyDomain
             it = itunesClients[ serviceName ]
