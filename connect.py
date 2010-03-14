@@ -1,5 +1,26 @@
 #!/usr/bin/python -i
 
+#Copyright (C) 2010 Marc Menem
+
+#This file is part of Remote. Remote is free software: you can
+#redistribute it and/or modify it under the terms of the GNU General
+#Public License as published by the Free Software Foundation, either
+#version 3 of the License, or (at your option) any later version.
+
+#Remote is distributed in the hope that it will be useful, but
+#WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with Remote. If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Ugly class
+
+"""
+
+
 import select, socket, sys, threading
 
 __macosx__ = sys.platform == 'darwin'
@@ -35,7 +56,7 @@ if __macosx__:
             it = itunesClients[fullname.split(".")[0]]
             it.resolved( hosttarget, fullname, port, txtRecord )
     
-            it.query_sdRef = pybonjour.DNSServiceQueryRecord( interfaceIndex = self.interfaceIndex,
+            it.query_sdRef = pybonjour.DNSServiceQueryRecord( interfaceIndex = interfaceIndex,
                                 fullname = hosttarget, rrtype = pybonjour.kDNSServiceType_A,
                                 callBack = query_record_callback)
             
@@ -49,10 +70,9 @@ if __macosx__:
             it = itunes( interfaceIndex, serviceName, replyDomain )
             itunesClients[ serviceName ] = it
     
-            resolve_sdRef = pybonjour.DNSServiceResolve( 0, interfaceIndex, serviceName,
+            it.resolve_sdRef = pybonjour.DNSServiceResolve( 0, interfaceIndex, serviceName,
                                 regtype, replyDomain, resolve_callback)
     
-            it.resolver = resolve_sdRef
             
         else:
             print 'Service removed', interfaceIndex, serviceName, replyDomain
@@ -134,9 +154,9 @@ else:
         txtRecord = None
         
         it = itunesClients[args[2].decode() ]
-        it.resolved( args[7].decode() , args[5].decode() , args[8].real , txtRecord )
-        it.ip = args[7].decode() 
-        
+        it.resolved( args[5].decode() , args[5].decode() , args[8].real , txtRecord )
+        it.ip = args[7].decode()
+        it.show()
     
     def print_error(*args):
         print 'error_handler'
