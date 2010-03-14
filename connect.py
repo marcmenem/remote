@@ -1,5 +1,7 @@
 #!/usr/bin/python -i
 
+
+
 import select, socket, sys, threading
 
 __macosx__ = sys.platform == 'darwin'
@@ -7,6 +9,10 @@ __macosx__ = sys.platform == 'darwin'
 regtype  = '_touch-able._tcp'
 timeout  = 5
 itunesClients = {}
+
+
+
+data = []
 
 
 if __macosx__:
@@ -117,8 +123,18 @@ else:
 
 
     def txtRec( tr ):
-        print "FIXME"
-        return {}
+        out = {}
+        
+        for dp in tr:
+            if hasattr( dp, 'signature' ):
+                d = "".join( [chr( i.real ) for i in dp] )
+                d = d.split("=")
+                out[d[0]] = d[1]
+                
+            else:
+                print ">>>>>", dp
+            
+        return out
 
     
     def service_resolved(*args):
@@ -128,16 +144,14 @@ else:
         print 'port:', args[8]
         print 'hostname:', args[5]
         
-        print "args", args
-        
-        "FIXME"
-        txtRecord = None
+        txtRecord = args[9]
         
         it = itunesClients[args[2].decode() ]
-        it.resolved( args[7].decode() , args[5].decode() , args[8].real , txtRecord )
+        fn = args[2].decode()  + "." + regtype + "." + "local."
+        it.resolved( args[5].decode() , fn, args[8].real , txtRecord )
         it.ip = args[7].decode() 
-        
-    
+        it.show()
+      
     def print_error(*args):
         print 'error_handler'
         print args[0]
@@ -202,6 +216,7 @@ class itunes:
         self.hosttarget = hosttarget
         self.port = port
         self.txtRecord = txtRec( txtRecord )
+        
         if self.txtRecord.has_key('CtlN'):  self.dbName = self.txtRecord['CtlN']
         if self.txtRecord.has_key('DbId'):  self.dbId = self.txtRecord['DbId']
         
