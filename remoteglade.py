@@ -91,15 +91,16 @@ class Remote:
                 self.searchresults.set_value( row, 0, pl.name )
         
         
-    def volumerelease(self, window):
-        volume = 50  #FIXME
-        print "FIXME"
-        self.remote.setvolume(volume)
-        self.update_volume()
-    
-    def update_volume(self):
+    def volumechanged(self, vol, volume):
+        volume = int(volume*100)
+        gobject.idle_add(self.remote.setvolume, volume)
+
+    def update_volume(self, vol=None):
+        if not vol:
+            vol = self.builder.get_object("volumebutton1")
         volume = self.remote.getvolume()
-        #FIXME
+        vol.set_value(volume/100.)
+        
         
     def trackseek(self, window):
         print "trackseek", window
@@ -186,6 +187,10 @@ class Remote:
             else:
                 print "Not scheduling timer"
 
+    def setspeakers(self, value):
+        self.remote.setspeakers([value.get_active()])
+        
+
     def update_speakers(self):
         print "Speakers"
         speakers = self.remote.getspeakers()
@@ -195,10 +200,15 @@ class Remote:
         except:
             pass
             
+        speakercombo = self.builder.get_object( "combobox1" )
+        i = 0    
         for spk in speakers:
         	row = self.speakerslist.append()
         	self.speakerslist.set_value(row, 0, spk.name)
-        
+        	if spk.playing:
+        		speakercombo.set_active(i)
+        	i += 1
+
         
     def update_playlists(self):
         try:
@@ -211,7 +221,8 @@ class Remote:
             row = self.playlists.append()
             self.playlists.set_value( row, 0, pl.name )
             self.playlists.set_value( row, 1, pl.nbtracks )
-
+        
+        
     def __init__( self ):
         builder = gtk.Builder()
         builder.add_from_file( "glade/remote.glade" )
@@ -247,6 +258,7 @@ class Remote:
         self.update_speakers()
         self.update_status()
         self.update_playlists()
+        self.update_volume()
         
         # thread helpers
         self.ui_updater = listener(self)

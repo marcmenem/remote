@@ -209,7 +209,7 @@
 audio-volume-high
 audio-volume-low
 audio-volume-medium</property>
-                    <signal name="released" handler="volumerelease"/>
+                    <signal name="value_changed" handler="volumechanged"/>
                   </object>
                   <packing>
                     <property name="position">3</property>
@@ -287,6 +287,7 @@ audio-volume-medium</property>
                 <property name="visible">True</property>
                 <property name="resize_mode">immediate</property>
                 <property name="model">liststore2</property>
+                <signal name="changed" handler="setspeakers"/>
                 <child>
                   <object class="GtkCellRendererText" id="cellrenderertext8"/>
                   <attributes>

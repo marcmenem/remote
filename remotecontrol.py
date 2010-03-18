@@ -448,7 +448,7 @@ query='daap.songalbumid:14279550205875584078'"
         
         
     def getvolume(self ):
-        return self.getproperty('dmcp.volume')    
+        return self.getproperty('dmcp.volume')['cmgt']['cmvo']
         
     def setvolume(self, value ):
         return self.setproperty('dmcp.volume', value)    
