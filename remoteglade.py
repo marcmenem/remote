@@ -101,11 +101,15 @@ class Remote:
         volume = self.remote.getvolume()
         vol.set_value(volume/100.)
         
+    def positionchanged(self, ps, ps1, ps2):
+        self.timeupdate = False
+        gobject.idle_add(self.remote.seek,int(ps2))
         
-    def trackseek(self, window):
-        print "trackseek", window
+    def positionset(self,ps, ps1):
+        print "trackseek", ps, ps1
         
-
+        self.update_status()
+        
     def nextitem(self, window):
         self.remote.skip()
         
@@ -132,6 +136,7 @@ class Remote:
         self.about_dialog.hide()
 
     def update_status(self, status = None):
+        self.timeupdate = True
         if not status: status = self.remote.showStatus()
         if status.ok():
             self.track.set_label(status.track)
@@ -174,7 +179,7 @@ class Remote:
         
         if self.timepos < 0:
         	self.update_status()
-        else:
+        elif self.timeupdate:
             self.time.set_label(timerepr( self.totaltime - self.timepos ))
             self.timeremain.set_label(timerepr( self.totaltime ))
                 

@@ -264,6 +264,8 @@ audio-volume-medium</property>
                     <property name="digits">0</property>
                     <property name="draw_value">False</property>
                     <property name="value_pos">left</property>
+                    <signal name="change_value" handler="positionchanged"/>
+                    <signal name="button_release_event" handler="positionset"/>
                   </object>
                   <packing>
                     <property name="position">1</property>
