@@ -6,9 +6,9 @@ pygtk.require( "2.0" )
 import gtk
 import gtk.gdk
 import gobject
+import threading 
 
 import remotecontrol
-import threading 
 import config
 
 class searcher(threading.Thread):
@@ -21,7 +21,7 @@ class searcher(threading.Thread):
         #while self.working:
         #    time.sleep(0.1)
 
-        print "Searching", self.value
+        #print "Searching", self.value
         #self.working = True
         res = self.win.remote.query(self.value)
         #self.working = False
@@ -42,6 +42,21 @@ class listener(threading.Thread):
             gobject.idle_add(self.win.update_status, st)
 
 
+class listener2(threading.Thread):
+    def __init__(self, win):
+        super(listener2, self).__init__()
+        self.win = win
+        self.do = True
+        self.setDaemon(1) # avoid lock on exit
+        
+    def run(self):
+        while self.do:
+            print "Waiting server events"
+            st = self.win.remote.update( self.win.remote.nextplaylistupdate )
+            print "Update playlist >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            gobject.idle_add(self.win.update_nowplaying, st)
+            
+            
 def timerepr(t1):
 	min = t1 / ( 60000 )
 	sec = (t1 - 60000*min)/1000
@@ -58,7 +73,7 @@ class Remote:
 
         
     def reset_search(self, res):
-        print "Reset search"   
+        #print "Reset search"   
         try:
             while self.searchresults.remove(self.searchresults.get_iter_first()):
                 pass
@@ -106,9 +121,7 @@ class Remote:
         gobject.idle_add(self.remote.seek,int(ps2))
         
     def positionset(self,ps, ps1):
-        print "trackseek", ps, ps1
-        
-        self.update_status()
+        gobject.idle_add(self.update_status)
         
     def nextitem(self, window):
         self.remote.skip()
@@ -135,10 +148,24 @@ class Remote:
         self.about_dialog.run()
         self.about_dialog.hide()
 
+    def update_nowplaying(self):
+        try:
+            while self.nowplaying.remove(self.nowplaying.get_iter_first()):
+                pass
+        except:
+            pass
+            
+        for sg in self.remote._query_songs(albumid=self.albumid, nbitem=40).list:
+            row = self.nowplaying.append()
+            self.nowplaying.set_value( row, 0, sg.name )
+            self.nowplaying.set_value( row, 1, sg.id )
+
     def update_status(self, status = None):
         self.timeupdate = True
         if not status: status = self.remote.showStatus()
         if status.ok():
+            self.albumid = str(status.albumid)
+            self.update_nowplaying()
             self.track.set_label(status.track)
             self.artist.set_label(status.artist)
             #self.album.set_label(status.album)
@@ -147,14 +174,15 @@ class Remote:
             self.playstatus = status.playstatus
             if status.playstatus > 2:
                 if hasattr(self.remote,'artwork') and self.remote.artwork:
-                    print "Updating artwork"
+                    #print "Updating artwork"
                     pb = gtk.gdk.PixbufLoader()
                     pb.write(self.remote.artwork)
                     pb.close()
                     self.image.set_from_pixbuf(pb.get_pixbuf())
                     
                 else:
-                    print "Missing artwork"
+                    pass
+                    #print "Missing artwork"
                 
             	self.totaltime = status.totaltime
             	self.timepos = status.time
@@ -197,7 +225,7 @@ class Remote:
         
 
     def update_speakers(self):
-        print "Speakers"
+        #print "Speakers"
         speakers = self.remote.getspeakers()
         try:
             while self.speakerslist.remove(self.speakerslist.get_iter_first()):
@@ -227,6 +255,17 @@ class Remote:
             self.playlists.set_value( row, 0, pl.name )
             self.playlists.set_value( row, 1, pl.nbtracks )
         
+    def updateItunes(self):
+        try:
+            while self.itunes.remove(self.itunes.get_iter_first()):
+                pass
+        except:
+            pass
+            
+        for it in config.connect.itunesClients.values():
+            row = self.itunes.append()
+            self.itunes.set_value( row, 0, it.dbName )
+            self.itunes.set_value( row, 1, it.ip )        
         
     def __init__( self ):
         builder = gtk.Builder()
@@ -250,27 +289,43 @@ class Remote:
         self.speakerslist = builder.get_object("liststore2")
         self.entry = builder.get_object("entry1")
         
+        
+        self.nowplaying = builder.get_object("nowplaying")
+        self.itunes = builder.get_object("itunes")
+        
         self.image = builder.get_object("image1")
                 
         builder.connect_signals( self )
-        
+        self.remote = None
         config.connect.postHook = self.connectRC
+        
 
 
     def connectRC(self):
-        print "Connecting remote"
-        self.remote = remotecontrol.connectRC(update = False)
-        self.update_speakers()
-        self.update_status()
-        self.update_playlists()
-        self.update_volume()
+        self.updateItunes()
+        if not self.remote:
+            print "Connecting remote"
+            self.remote = remotecontrol.connectRC(update = False)
+            self.update_speakers()
+            self.update_status()
+            self.update_playlists()
+            self.update_volume()
+            
+            # thread helpers
+            self.ui_updater = listener(self)
+            self.ui_updater.start()
+            
+            self.remote.update()
+            self.ui_updater2 = listener2(self)
+            self.ui_updater2.start()
+            
+            nb = self.builder.get_object("notebook1")
+            nb.set_current_page(1)
+            
+            # self.searcher = searcher(self)
         
-        # thread helpers
-        self.ui_updater = listener(self)
-        self.ui_updater.start()
-        
-        # self.searcher = searcher(self)
-        
+
+
 if __name__ == "__main__":
 
     win = Remote()
@@ -280,5 +335,11 @@ if __name__ == "__main__":
     gtk.gdk.threads_enter()
     gtk.main()
     gtk.gdk.threads_leave()
+
+
+
+
+
+
 
 

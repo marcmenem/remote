@@ -31,7 +31,6 @@ Remote comes with ABSOLUTELY NO WARRANTY. This is free software, and you are wel
 """ % __version__
 
 
-
 import urllib, urllib2
 from urllib2 import HTTPError
 
@@ -46,7 +45,7 @@ import config
 
 
 confMan = config.configManager()
-
+verbose = False
 
 
 class daemonThread( threading.Thread ):
@@ -116,7 +115,8 @@ class remote:
         
         url = command
         if len(values): url += "?" + _encode(values)
-        if verbose: print url
+        #if verbose: print url
+        print url
         
         headers = { 
             'Viewer-Only-Client': '1', 
@@ -315,7 +315,7 @@ query='daap.songalbumid:14279550205875584078'"
         res.artists = self._query_artists(text)
         res.tracks = self._query_songs(text)
         
-        res.show()
+        if verbose: res.show()
         return res
 
 
@@ -324,7 +324,7 @@ query='daap.songalbumid:14279550205875584078'"
         for i in range(len(d)):
             a.append(d[i])
         r = decode.decode( a, len(d), 0)
-        print "--+ :)"
+        if verbose: print "--+ :)"
         return r
         
     
@@ -357,11 +357,11 @@ query='daap.songalbumid:14279550205875584078'"
         status = self._ctloperation('playstatusupdate', values, verbose)    
         if status:
             status = status['cmst']
-            status.show()
+            if verbose: status.show()
             self.nextupdate = status.revisionnumber
             self.status = status
             if status.playstatus > 2:
-                self.artwork = self.nowplayingartwork()
+                self.artwork = self.nowplayingartwork(savetofile=verbose)
             else:
                 self.artwork = None
         return status
@@ -444,7 +444,7 @@ query='daap.songalbumid:14279550205875584078'"
         
     def getproperty(self, prop ):
         values = {'properties': prop }
-        return self._ctloperation('getproperty', values)    
+        return self._ctloperation('getproperty', values, verbose=False)    
         
         
     def getvolume(self ):
@@ -641,6 +641,7 @@ def connectRC(update = True):
 
 if __name__ == "__main__":
     
+    verbose = True
     __macosx__ = sys.platform == 'darwin'
     
     if not __macosx__:
